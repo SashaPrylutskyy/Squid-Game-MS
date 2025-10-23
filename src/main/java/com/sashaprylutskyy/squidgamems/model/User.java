@@ -68,21 +68,6 @@ public class User implements UserDetails {
         this.email = email;
     }
 
-   /* public User(Long id, String email, String password, String firstName,
-                String lastName, String profilePhoto, Sex sex, Date birthday,
-                Role role) {
-        this.id = id;
-        this.email = email;
-        this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.profilePhoto = profilePhoto;
-        this.sex = sex;
-        this.birthday = birthday;
-        this.role = role;
-        this.status = UserStatus.ALIVE;
-    }*/
-
     public User(Long id, String email, String password, String firstName,
                 String lastName, String profilePhoto, Sex sex, Date birthday,
                 Long balance, Role role, UserStatus status) {

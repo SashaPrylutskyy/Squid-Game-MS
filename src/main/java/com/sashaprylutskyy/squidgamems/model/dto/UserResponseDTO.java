@@ -13,6 +13,7 @@ public class UserResponseDTO {
     private String lastName;
     private String profilePhoto;
     private Sex sex;
+    private String roleTitle;
     private Date birthday;
     private Long balance;
     private UserStatus status;
@@ -22,14 +23,15 @@ public class UserResponseDTO {
     public UserResponseDTO() {}
 
     public UserResponseDTO(Long id, String email, String firstName, String lastName,
-                           String profilePhoto, Sex sex, Date birthday, Long balance,
-                           UserStatus status, Long createdAt, Long updatedAt) {
+                           String profilePhoto, Sex sex, String roleTitle, Date birthday,
+                           Long balance, UserStatus status, Long createdAt, Long updatedAt) {
         this.id = id;
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
         this.profilePhoto = profilePhoto;
         this.sex = sex;
+        this.roleTitle = roleTitle;
         this.birthday = birthday;
         this.balance = balance;
         this.status = status;
@@ -59,6 +61,10 @@ public class UserResponseDTO {
 
     public Sex getSex() {
         return sex;
+    }
+
+    public String getRoleTitle() {
+        return roleTitle;
     }
 
     public Date getBirthday() {

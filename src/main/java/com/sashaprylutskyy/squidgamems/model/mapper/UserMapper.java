@@ -4,15 +4,10 @@ import com.sashaprylutskyy.squidgamems.model.Role;
 import com.sashaprylutskyy.squidgamems.model.User;
 import com.sashaprylutskyy.squidgamems.model.dto.UserRequestDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.UserResponseDTO;
-import com.sashaprylutskyy.squidgamems.service.RoleService;
 
 public class UserMapper {
 
     public static User toEntity(UserRequestDTO dto) {
-//        System.out.println(role.toString());
-        /*
-        entity.setStatus(dto.getStatus());
-        entity.setBalance(dto.getBalance());*/
         return new User(
                 dto.getId(),
                 dto.getEmail(),
@@ -36,6 +31,7 @@ public class UserMapper {
                 entity.getLastName(),
                 entity.getProfilePhoto(),
                 entity.getSex(),
+                entity.getRole().toString(),
                 entity.getBirthday(),
                 entity.getBalance(),
                 entity.getStatus(),

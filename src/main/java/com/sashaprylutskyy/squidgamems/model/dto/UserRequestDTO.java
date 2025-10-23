@@ -1,13 +1,11 @@
 package com.sashaprylutskyy.squidgamems.model.dto;
 
-import com.sashaprylutskyy.squidgamems.model.Role;
 import com.sashaprylutskyy.squidgamems.model.enums.Sex;
 import com.sashaprylutskyy.squidgamems.model.enums.UserStatus;
 import com.sashaprylutskyy.squidgamems.model.interfaceGroup.OnCreate;
 import com.sashaprylutskyy.squidgamems.model.interfaceGroup.OnLogin;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.*;
 
 import java.sql.Date;

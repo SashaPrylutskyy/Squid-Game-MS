@@ -4,6 +4,7 @@ import com.sashaprylutskyy.squidgamems.model.Role;
 import com.sashaprylutskyy.squidgamems.model.User;
 import com.sashaprylutskyy.squidgamems.model.dto.UserRequestDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.UserResponseDTO;
+import com.sashaprylutskyy.squidgamems.model.enums.UserStatus;
 import com.sashaprylutskyy.squidgamems.model.mapper.UserMapper;
 import com.sashaprylutskyy.squidgamems.repository.UserRepository;
 import com.sashaprylutskyy.squidgamems.security.JwtService;
@@ -63,11 +64,12 @@ public class UserService {
             Long currentTime = System.currentTimeMillis();
 
             User user = UserMapper.toEntity(dto);
-            user.setPassword(user.getPassword());
+            user.setPassword(encoder.encode(user.getPassword()));
+            user.setStatus(UserStatus.ALIVE);
             user.setCreatedAt(currentTime);
             user.setUpdatedAt(currentTime);
+//            user.setRole(role); //there is no need to display a user's role in this response
             userRepo.save(user);
-
             return UserMapper.toResponse(user);
         } catch (DataIntegrityViolationException e) {
             throw new DuplicateKeyException("Email is already taken.");
