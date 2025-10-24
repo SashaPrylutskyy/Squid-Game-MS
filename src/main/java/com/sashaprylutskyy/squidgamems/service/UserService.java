@@ -2,12 +2,13 @@ package com.sashaprylutskyy.squidgamems.service;
 
 import com.sashaprylutskyy.squidgamems.model.Role;
 import com.sashaprylutskyy.squidgamems.model.User;
-import com.sashaprylutskyy.squidgamems.model.dto.UserRequestDTO;
-import com.sashaprylutskyy.squidgamems.model.dto.UserResponseDTO;
+import com.sashaprylutskyy.squidgamems.model.dto.user.UserRequestDTO;
+import com.sashaprylutskyy.squidgamems.model.dto.user.UserResponseDTO;
 import com.sashaprylutskyy.squidgamems.model.enums.UserStatus;
 import com.sashaprylutskyy.squidgamems.model.mapper.UserMapper;
 import com.sashaprylutskyy.squidgamems.repository.UserRepository;
 import com.sashaprylutskyy.squidgamems.security.JwtService;
+import jakarta.transaction.Transactional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.core.Authentication;
@@ -24,13 +25,17 @@ public class UserService {
     private final JwtService jwtService;
     private final PasswordEncoder encoder;
     private final RoleService roleService;
+    private final UserMapper userMapper;
 
 
-    public UserService(UserRepository userRepo, JwtService jwtService, PasswordEncoder encoder, RoleService roleService) {
+    public UserService(UserRepository userRepo, JwtService jwtService,
+                       PasswordEncoder encoder, RoleService roleService,
+                       UserMapper userMapper) {
         this.userRepo = userRepo;
         this.jwtService = jwtService;
         this.encoder = encoder;
         this.roleService = roleService;
+        this.userMapper = userMapper;
     }
 
     public User getPrincipal() {
@@ -53,7 +58,7 @@ public class UserService {
         return null;
     }
 
-
+    @Transactional
     public UserResponseDTO registerUser(UserRequestDTO dto) {
         Role role = roleService.getRoleById(dto.getRoleId());
 
@@ -63,14 +68,15 @@ public class UserService {
         try {
             Long currentTime = System.currentTimeMillis();
 
-            User user = UserMapper.toEntity(dto);
+            User user = userMapper.toEntity(dto);
             user.setPassword(encoder.encode(user.getPassword()));
             user.setStatus(UserStatus.ALIVE);
             user.setCreatedAt(currentTime);
             user.setUpdatedAt(currentTime);
-//            user.setRole(role); //there is no need to display a user's role in this response
-            userRepo.save(user);
-            return UserMapper.toResponse(user);
+            user.setRole(role);
+
+            user = userRepo.save(user);
+            return userMapper.toResponseDTO(user);
         } catch (DataIntegrityViolationException e) {
             throw new DuplicateKeyException("Email is already taken.");
         }

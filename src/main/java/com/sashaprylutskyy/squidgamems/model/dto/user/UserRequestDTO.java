@@ -1,4 +1,4 @@
-package com.sashaprylutskyy.squidgamems.model.dto;
+package com.sashaprylutskyy.squidgamems.model.dto.user;
 
 import com.sashaprylutskyy.squidgamems.model.enums.Sex;
 import com.sashaprylutskyy.squidgamems.model.enums.UserStatus;

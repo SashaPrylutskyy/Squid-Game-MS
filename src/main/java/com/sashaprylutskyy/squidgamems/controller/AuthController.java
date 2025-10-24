@@ -1,7 +1,7 @@
 package com.sashaprylutskyy.squidgamems.controller;
 
-import com.sashaprylutskyy.squidgamems.model.dto.UserRequestDTO;
-import com.sashaprylutskyy.squidgamems.model.dto.UserResponseDTO;
+import com.sashaprylutskyy.squidgamems.model.dto.user.UserRequestDTO;
+import com.sashaprylutskyy.squidgamems.model.dto.user.UserResponseDTO;
 import com.sashaprylutskyy.squidgamems.model.interfaceGroup.OnCreate;
 import com.sashaprylutskyy.squidgamems.model.interfaceGroup.OnLogin;
 import com.sashaprylutskyy.squidgamems.service.UserService;
