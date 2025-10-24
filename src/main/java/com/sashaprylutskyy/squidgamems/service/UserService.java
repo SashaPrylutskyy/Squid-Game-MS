@@ -53,6 +53,11 @@ public class UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("User %s not found".formatted(email)));
     }
 
+    public User getUserById(Long id) {
+        return userRepo.findUserById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("User No.%d not found".formatted(id)));
+    }
+
     //todo
     public UserResponseDTO registerUser(UserRequestDTO dto, String token) {
         return null;
