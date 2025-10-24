@@ -6,7 +6,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -34,7 +33,7 @@ public class JwtService {
 
     public String generateToken(User user) {
         Map<String, ?> claims = Map.of( "userId", user.getId(),
-                                        "role", user.getRole().toString());
+                                        "role", "ROLE_" + user.getRole().toString());
         return Jwts.builder()
                 .subject(user.getEmail())
                 .claims(claims)
@@ -65,9 +64,9 @@ public class JwtService {
                 .getPayload();
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String email = extractSubject(token);
-        return (Objects.equals(email, userDetails.getUsername()) && !isTokenExpired(token));
+    public boolean isTokenValid(String token, String subject) {
+        final String emailFromToken = extractSubject(token);
+        return (Objects.equals(emailFromToken, subject) && !isTokenExpired(token));
     }
 
     public boolean isTokenExpired(String token) {

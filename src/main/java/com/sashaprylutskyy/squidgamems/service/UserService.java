@@ -57,8 +57,8 @@ public class UserService {
     public UserResponseDTO registerUser(UserRequestDTO dto) {
         Role role = roleService.getRoleById(dto.getRoleId());
 
-        if (!role.toString().equals("Host") && !role.toString().equals("VIP")) {
-            throw new RuntimeException("You're able to register account with either Host or VIP role.");
+        if (!role.toString().equals("HOST") && !role.toString().equals("VIP")) {
+            throw new RuntimeException("You're able to register an account with either Host or VIP role.");
         }
         try {
             Long currentTime = System.currentTimeMillis();
