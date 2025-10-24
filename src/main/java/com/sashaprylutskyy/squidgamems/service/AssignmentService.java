@@ -46,8 +46,8 @@ public class AssignmentService {
 
     //The goal of this method is to assign a player to a competition
     public AssignmentResponseDTO assign(AssignmentRequestDTO dto) {
-        User user = userService.getUserById(dto.getUserId());
-        if (!user.getRole().toString().equals("PLAYER")) {
+        User player = userService.getUserById(dto.getUserId());
+        if (!player.getRole().toString().equals("PLAYER")) {
             throw new RuntimeException("Only a player can be assigned to a competition");
         }
         User principal = userService.getPrincipal();
@@ -55,7 +55,7 @@ public class AssignmentService {
         Assignment assignment = new Assignment(
                 EnvType.COMPETITION,
                 dto.getEnvId(), //todo потрібно переконатися, що зазначене competition існує
-                user,
+                player,
                 principal,
                 System.currentTimeMillis()
         );
