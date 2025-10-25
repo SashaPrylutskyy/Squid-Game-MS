@@ -43,11 +43,10 @@ public class JobOfferService {
                 principal,
                 role,
                 dto.getEmail(),
-                UUID.randomUUID(),
                 JobOfferStatus.AWAITING,
                 System.currentTimeMillis()
         );
-        jobOfferRepo.save(jobOffer);
+        jobOffer = jobOfferRepo.save(jobOffer);
         return jobOfferMapper.toResponseDTO(jobOffer);
     }
 }

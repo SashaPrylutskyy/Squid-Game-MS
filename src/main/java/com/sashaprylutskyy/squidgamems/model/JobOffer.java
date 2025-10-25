@@ -11,8 +11,8 @@ import java.util.UUID;
 public class JobOffer {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID token;
 
     private Long lobbyId;
 
@@ -28,9 +28,6 @@ public class JobOffer {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(unique = true)
-    private UUID token;
-
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private JobOfferStatus offerStatus;
@@ -42,22 +39,13 @@ public class JobOffer {
     }
 
     public JobOffer(Long lobbyId, User offeredBy, Role role, String email,
-                    UUID token, JobOfferStatus offerStatus, Long createdAt) {
+                    JobOfferStatus offerStatus, Long createdAt) {
         this.lobbyId = lobbyId;
         this.offeredBy = offeredBy;
         this.role = role;
         this.email = email;
-        this.token = token;
         this.offerStatus = offerStatus;
         this.createdAt = createdAt;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public Long getLobbyId() {
