@@ -14,6 +14,8 @@ import com.sashaprylutskyy.squidgamems.repository.JobOfferRepository;
 import com.sashaprylutskyy.squidgamems.repository.LobbyRepository;
 import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -47,6 +49,13 @@ public class JobOfferService {
         User principal = userService.getPrincipal();
         Role role = roleService.getRoleById(dto.getRoleId());
         Lobby currentLobby = lobbyService.getLobbyByUserId(principal.getId());
+
+        try {
+            User user = userService.getUserByEmail(dto.getEmail());
+            if (user != null) {
+                throw new DuplicateKeyException("User %s is already registered".formatted(dto.getEmail()));
+            }
+        } catch (UsernameNotFoundException ignored) {}
 
         if (role.toString().equals("HOST") || role.toString().equals("VIP") || role.toString().equals("PLAYER")) {
             throw new RuntimeException("Unable to make a job offer neither for VIP nor HOST nor PLAYER");
