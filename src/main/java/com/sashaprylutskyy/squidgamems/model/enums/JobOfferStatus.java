@@ -1,6 +1,6 @@
 package com.sashaprylutskyy.squidgamems.model.enums;
 
-public enum InvitationStatus {
+public enum JobOfferStatus {
     AWAITING(),
     ACCEPTED(),
     DECLINED(),

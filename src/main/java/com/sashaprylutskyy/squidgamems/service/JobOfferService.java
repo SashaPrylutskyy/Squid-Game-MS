@@ -1,37 +1,36 @@
 package com.sashaprylutskyy.squidgamems.service;
 
+import com.sashaprylutskyy.squidgamems.model.JobOffer;
 import com.sashaprylutskyy.squidgamems.model.Role;
 import com.sashaprylutskyy.squidgamems.model.User;
-import com.sashaprylutskyy.squidgamems.model.dto.invitation.InvitationRequestDTO;
-import com.sashaprylutskyy.squidgamems.model.dto.invitation.InvitationResponseDTO;
-import com.sashaprylutskyy.squidgamems.model.enums.InvitationStatus;
-import com.sashaprylutskyy.squidgamems.model.mapper.InvitationMapper;
-import com.sashaprylutskyy.squidgamems.repository.InvitationRepository;
-import com.sashaprylutskyy.squidgamems.model.Invitation;
+import com.sashaprylutskyy.squidgamems.model.dto.jobOffer.JobOfferRequestDTO;
+import com.sashaprylutskyy.squidgamems.model.dto.jobOffer.JobOfferResponseDTO;
+import com.sashaprylutskyy.squidgamems.model.enums.JobOfferStatus;
+import com.sashaprylutskyy.squidgamems.model.mapper.JobOfferMapper;
+import com.sashaprylutskyy.squidgamems.repository.JobOfferRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
-public class InvitationService {
+public class JobOfferService {
 
-
-    private final InvitationRepository invitationRepo;
+    private final JobOfferRepository jobOfferRepo;
     private final UserService userService;
     private final RoleService roleService;
-    private final InvitationMapper invitationMapper;
+    private final JobOfferMapper jobOfferMapper;
 
 
-    public InvitationService(InvitationRepository invitationRepo, UserService userService,
-                             RoleService roleService, InvitationMapper invitationMapper) {
-        this.invitationRepo = invitationRepo;
+    public JobOfferService(JobOfferRepository jobOfferRepo, UserService userService,
+                           RoleService roleService, JobOfferMapper jobOfferMapper) {
+        this.jobOfferRepo = jobOfferRepo;
         this.userService = userService;
         this.roleService = roleService;
-        this.invitationMapper = invitationMapper;
+        this.jobOfferMapper = jobOfferMapper;
     }
 
     //todo implement invitation for other then HOST. For the time being this is a problem cuz it's difficult to catch to which lobby does a person belongs to
-    public InvitationResponseDTO makeJobOffer(InvitationRequestDTO dto) {
+    public JobOfferResponseDTO makeJobOffer(JobOfferRequestDTO dto) {
         User principal = userService.getPrincipal();
         Role role = roleService.getRoleById(dto.getRoleId());
 
@@ -39,16 +38,16 @@ public class InvitationService {
             throw new RuntimeException("Unable to make a job offer neither for VIP nor HOST nor PLAYER");
         }
 
-        Invitation invitation = new Invitation(
+        JobOffer jobOffer = new JobOffer(
                 principal.getId(),
                 principal,
                 role,
                 dto.getEmail(),
                 UUID.randomUUID(),
-                InvitationStatus.AWAITING,
+                JobOfferStatus.AWAITING,
                 System.currentTimeMillis()
         );
-        invitationRepo.save(invitation);
-        return invitationMapper.toResponseDTO(invitation);
+        jobOfferRepo.save(jobOffer);
+        return jobOfferMapper.toResponseDTO(jobOffer);
     }
 }

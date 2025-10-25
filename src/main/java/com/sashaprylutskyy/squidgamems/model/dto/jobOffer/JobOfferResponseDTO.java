@@ -1,13 +1,13 @@
-package com.sashaprylutskyy.squidgamems.model.dto.invitation;
+package com.sashaprylutskyy.squidgamems.model.dto.jobOffer;
 
 import java.util.UUID;
 
-public class InvitationResponseDTO {
+public class JobOfferResponseDTO {
 
     private UUID token;
     private String email;
 
-    public InvitationResponseDTO() {
+    public JobOfferResponseDTO() {
 
     }
 

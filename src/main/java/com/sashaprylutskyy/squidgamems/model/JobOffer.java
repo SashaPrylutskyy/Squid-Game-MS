@@ -1,14 +1,14 @@
 package com.sashaprylutskyy.squidgamems.model;
 
-import com.sashaprylutskyy.squidgamems.model.enums.InvitationStatus;
+import com.sashaprylutskyy.squidgamems.model.enums.JobOfferStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 
 import java.util.UUID;
 
 @Entity
-@Table(name = "invitations")
-public class Invitation {
+@Table(name = "job_offers")
+public class JobOffer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,8 +17,8 @@ public class Invitation {
     private Long lobbyId;
 
     @ManyToOne
-    @JoinColumn(name = "invited_by_id")
-    private User invitedBy;
+    @JoinColumn(name = "offered_by_id")
+    private User offeredBy;
 
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
@@ -33,22 +33,22 @@ public class Invitation {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private InvitationStatus inviteStatus;
+    private JobOfferStatus offerStatus;
 
     @Column(nullable = false)
     private Long createdAt;
 
-    public Invitation() {
+    public JobOffer() {
     }
 
-    public Invitation(Long lobbyId, User invitedBy, Role role, String email,
-                      UUID token, InvitationStatus inviteStatus, Long createdAt) {
+    public JobOffer(Long lobbyId, User offeredBy, Role role, String email,
+                    UUID token, JobOfferStatus offerStatus, Long createdAt) {
         this.lobbyId = lobbyId;
-        this.invitedBy = invitedBy;
+        this.offeredBy = offeredBy;
         this.role = role;
         this.email = email;
         this.token = token;
-        this.inviteStatus = inviteStatus;
+        this.offerStatus = offerStatus;
         this.createdAt = createdAt;
     }
 
@@ -68,12 +68,12 @@ public class Invitation {
         this.lobbyId = lobbyId;
     }
 
-    public User getInvitedBy() {
-        return invitedBy;
+    public User getOfferedBy() {
+        return offeredBy;
     }
 
-    public void setInvitedBy(User invitedBy) {
-        this.invitedBy = invitedBy;
+    public void setOfferedBy(User offeredBy) {
+        this.offeredBy = offeredBy;
     }
 
     public Role getRole() {
@@ -100,12 +100,12 @@ public class Invitation {
         this.token = token;
     }
 
-    public InvitationStatus getInviteStatus() {
-        return inviteStatus;
+    public JobOfferStatus getOfferStatus() {
+        return offerStatus;
     }
 
-    public void setInviteStatus(InvitationStatus inviteStatus) {
-        this.inviteStatus = inviteStatus;
+    public void setOfferStatus(JobOfferStatus offerStatus) {
+        this.offerStatus = offerStatus;
     }
 
     public Long getCreatedAt() {
