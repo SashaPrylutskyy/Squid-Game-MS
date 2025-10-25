@@ -32,7 +32,6 @@ public class AssignmentService {
         return assignmentRepo.findByCompetitionIdAndPlayerId(competitionId, playerId);
     }
 
-    //The goal of this method is to assign players to a competition
     @Transactional
     public AssignmentResponseDTO assignPlayersToCompetition(AssignmentRequestDTO dto) {
         User principal = userService.getPrincipal();
@@ -43,16 +42,21 @@ public class AssignmentService {
         List<User> playerEntities = new ArrayList<>();
 
         for (Long playerId : dto.getPlayerIds()) {
+            Assignment assignment = getByCompetitionIdAndPlayerId(competitionId, playerId);
+            if (assignment != null) {
+                continue;
+            }
+
             User player = userService.getUserById(playerId);
             playerEntities.add(player);
 
-            Assignment assignment = new Assignment(
+            Assignment newAssignment = new Assignment(
                     competitionId,
                     player,
                     principal,
                     now
             );
-            assignmentsToSave.add(assignment);
+            assignmentsToSave.add(newAssignment);
         }
 
         assignmentRepo.saveAll(assignmentsToSave);
