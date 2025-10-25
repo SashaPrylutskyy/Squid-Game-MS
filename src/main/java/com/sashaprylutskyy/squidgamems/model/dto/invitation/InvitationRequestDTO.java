@@ -1,4 +1,4 @@
-package com.sashaprylutskyy.squidgamems.model.dto;
+package com.sashaprylutskyy.squidgamems.model.dto.invitation;
 
 import com.sashaprylutskyy.squidgamems.model.interfaceGroup.OnCreate;
 import com.sashaprylutskyy.squidgamems.model.interfaceGroup.OnLogin;

@@ -1,7 +1,7 @@
 package com.sashaprylutskyy.squidgamems.controller;
 
-import com.sashaprylutskyy.squidgamems.model.dto.InvitationRequestDTO;
-import com.sashaprylutskyy.squidgamems.model.Invitation;
+import com.sashaprylutskyy.squidgamems.model.dto.invitation.InvitationRequestDTO;
+import com.sashaprylutskyy.squidgamems.model.dto.invitation.InvitationResponseDTO;
 import com.sashaprylutskyy.squidgamems.service.InvitationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +24,8 @@ public class InvitationController {
 
     @PostMapping
     @Secured({"ROLE_HOST", "ROLE_FRONTMAN", "ROLE_MANAGER", "ROLE_THE_OFFICER"})
-    public ResponseEntity<Invitation> invite(@RequestBody @Validated InvitationRequestDTO dto) {
-        Invitation invitation = invitationService.create(dto);
+    public ResponseEntity<InvitationResponseDTO> makeJobOffer(@RequestBody @Validated InvitationRequestDTO dto) {
+        InvitationResponseDTO invitation = invitationService.makeJobOffer(dto);
         return new ResponseEntity<>(invitation, HttpStatus.CREATED);
     }
 }
