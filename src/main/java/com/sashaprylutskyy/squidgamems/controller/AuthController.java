@@ -25,7 +25,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<UserResponseDTO> createUser(@Validated(OnCreate.class) @RequestBody UserRequestDTO dto) {
-        UserResponseDTO userResponse = userService.registerUser(dto);
+        UserResponseDTO userResponse = userService.registerHOSTorVIP(dto);
         return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
     }
 

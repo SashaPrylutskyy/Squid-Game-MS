@@ -89,6 +89,10 @@ public class UserRequestDTO {
         return roleId;
     }
 
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
+    }
+
     public UserStatus getStatus() {
         return status;
     }

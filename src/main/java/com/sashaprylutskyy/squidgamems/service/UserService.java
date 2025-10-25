@@ -61,17 +61,25 @@ public class UserService {
     }
 
     //todo
-    public UserResponseDTO registerUser(UserRequestDTO dto, String token) {
-        return null;
-    }
+//    public UserResponseDTO registerUser(UserRequestDTO dto, String token) {
+//        return null;
+//    }
 
     @Transactional
-    public UserResponseDTO registerUser(UserRequestDTO dto) {
+    public UserResponseDTO registerHOSTorVIP(UserRequestDTO dto) {
         Role role = roleService.getRoleById(dto.getRoleId());
 
         if (!role.toString().equals("HOST") && !role.toString().equals("VIP")) {
             throw new RuntimeException("You're able to register an account with either Host or VIP role.");
         }
+
+        User user = createUserFromData(dto, role);
+        lobbyService.assignUserToLobby(user, user.getId());
+        return userMapper.toResponseDTO(user);
+    }
+
+    @Transactional
+    public User createUserFromData(UserRequestDTO dto, Role role) {
         try {
             Long currentTime = System.currentTimeMillis();
 
@@ -82,11 +90,7 @@ public class UserService {
             user.setUpdatedAt(currentTime);
             user.setRole(role);
 
-            user = userRepo.save(user);
-            if (user.getRole().toString().equals("HOST")) {
-                lobbyService.assignUserToLobby(user, user.getId());
-            }
-            return userMapper.toResponseDTO(user);
+            return userRepo.save(user);
         } catch (DataIntegrityViolationException e) {
             throw new DuplicateKeyException("Email is already taken.");
         }

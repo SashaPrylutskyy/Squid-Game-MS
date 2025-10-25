@@ -14,6 +14,7 @@ public class JobOffer {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID token;
 
+    @Column(nullable = false)
     private Long lobbyId;
 
     @ManyToOne
@@ -34,6 +35,7 @@ public class JobOffer {
 
     @Column(nullable = false)
     private Long createdAt;
+    private Long updatedAt;
 
     public JobOffer() {
     }
@@ -102,5 +104,13 @@ public class JobOffer {
 
     public void setCreatedAt(Long createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Long getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Long updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
