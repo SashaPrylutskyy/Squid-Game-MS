@@ -4,63 +4,64 @@ import com.sashaprylutskyy.squidgamems.model.Assignment;
 import com.sashaprylutskyy.squidgamems.model.User;
 import com.sashaprylutskyy.squidgamems.model.dto.assignment.AssignmentRequestDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.assignment.AssignmentResponseDTO;
-import com.sashaprylutskyy.squidgamems.model.enums.EnvType;
-import com.sashaprylutskyy.squidgamems.model.mapper.AssignmentMapper;
+import com.sashaprylutskyy.squidgamems.model.dto.user.UserSummaryDTO;
 import com.sashaprylutskyy.squidgamems.model.mapper.UserMapper;
 import com.sashaprylutskyy.squidgamems.repository.AssignmentRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.AccessDeniedException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class AssignmentService {
 
-    private final AssignmentMapper assignmentMapper;
-    private final AssignmentRepository assignmentRepository;
+    private final AssignmentRepository assignmentRepo;
     private final UserService userService;
+    private final UserMapper userMapper;
 
 
-    public AssignmentService(AssignmentMapper assignmentMapper, AssignmentRepository assignmentRepository,
-                             UserService userService) {
-        this.assignmentMapper = assignmentMapper;
-        this.assignmentRepository = assignmentRepository;
+    public AssignmentService(AssignmentRepository assignmentRepo, UserService userService,
+                             UserMapper userMapper) {
+        this.assignmentRepo = assignmentRepo;
         this.userService = userService;
+        this.userMapper = userMapper;
     }
 
-     public AssignmentResponseDTO assign() {
-       /* User user = userService.getUserById(dto.getUserId());
+    //The goal of this method is to assign players to a competition
+    @Transactional
+    public AssignmentResponseDTO assignPlayersToCompetition(AssignmentRequestDTO dto) {
         User principal = userService.getPrincipal();
+        Long competitionId = dto.getCompetitionId(); //todo переконатися, що competition існує
+        Long now = System.currentTimeMillis();
 
-        Assignment assignment = new Assignment(
-                dto.getEnvType(),
-                principal.getId(),
-                user,
-                principal,
-                System.currentTimeMillis()
-        );
+        List<Assignment> assignmentsToSave = new ArrayList<>();
+        List<User> playerEntities = new ArrayList<>();
 
-        assignment = assignmentRepository.save(assignment);
-        return assignmentMapper.toResponseDTO(assignment);*/
-         return null;
-    }
+        for (Long playerId : dto.getPlayerIds()) {
+            User player = userService.getUserById(playerId);
+            playerEntities.add(player);
 
-    //The goal of this method is to assign a player to a competition
-    public AssignmentResponseDTO assign(AssignmentRequestDTO dto) {
-        User player = userService.getUserById(dto.getUserId());
-        if (!player.getRole().toString().equals("PLAYER")) {
-            throw new RuntimeException("Only a player can be assigned to a competition");
+            Assignment assignment = new Assignment(
+                    competitionId,
+                    player,
+                    principal,
+                    now
+            );
+            assignmentsToSave.add(assignment);
         }
-        User principal = userService.getPrincipal();
 
-        Assignment assignment = new Assignment(
-                EnvType.COMPETITION,
-                dto.getEnvId(), //todo потрібно переконатися, що зазначене competition існує
-                player,
-                principal,
-                System.currentTimeMillis()
-        );
+        assignmentRepo.saveAll(assignmentsToSave);
+        AssignmentResponseDTO response = new AssignmentResponseDTO();
+        response.setCompetitionId(competitionId);
+        response.setAssignedAt(now);
 
-        assignment = assignmentRepository.save(assignment);
-        return assignmentMapper.toResponseDTO(assignment);
+        response.setAssignedBy(userMapper.toSummaryDTO(principal));
+        List<UserSummaryDTO> playerDTOs = playerEntities.stream()
+                .map(userMapper::toSummaryDTO)
+                .toList();
+
+        response.setPlayers(playerDTOs);
+        return response;
     }
 }

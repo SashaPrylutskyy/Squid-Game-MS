@@ -26,16 +26,18 @@ public class UserService {
     private final PasswordEncoder encoder;
     private final RoleService roleService;
     private final UserMapper userMapper;
+    private final LobbyService lobbyService;
 
 
     public UserService(UserRepository userRepo, JwtService jwtService,
                        PasswordEncoder encoder, RoleService roleService,
-                       UserMapper userMapper) {
+                       UserMapper userMapper, LobbyService lobbyService) {
         this.userRepo = userRepo;
         this.jwtService = jwtService;
         this.encoder = encoder;
         this.roleService = roleService;
         this.userMapper = userMapper;
+        this.lobbyService = lobbyService;
     }
 
     public User getPrincipal() {
@@ -81,6 +83,9 @@ public class UserService {
             user.setRole(role);
 
             user = userRepo.save(user);
+            if (user.getRole().toString().equals("HOST")) {
+                lobbyService.assignUserToLobby(user, user.getId());
+            }
             return userMapper.toResponseDTO(user);
         } catch (DataIntegrityViolationException e) {
             throw new DuplicateKeyException("Email is already taken.");

@@ -1,6 +1,5 @@
 package com.sashaprylutskyy.squidgamems.model;
 
-import com.sashaprylutskyy.squidgamems.model.enums.EnvType;
 import jakarta.persistence.*;
 
 @Entity
@@ -12,15 +11,11 @@ public class Assignment {
     private Long id;
 
     @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private EnvType envType; // LOBBY/COMPETITION
-
-    @Column(nullable = false)
-    private Long envId;
+    private Long competitionId;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "player_id", nullable = false)
+    private User player;
 
     @ManyToOne
     @JoinColumn(name = "assigned_by", nullable = false)
@@ -33,10 +28,9 @@ public class Assignment {
 
     }
 
-    public Assignment(EnvType envType, Long envId, User user, User assignedBy, Long assignedAt) {
-        this.envType = envType;
-        this.envId = envId;
-        this.user = user;
+    public Assignment(Long competitionId, User player, User assignedBy, Long assignedAt) {
+        this.competitionId = competitionId;
+        this.player = player;
         this.assignedBy = assignedBy;
         this.assignedAt = assignedAt;
     }
@@ -45,32 +39,20 @@ public class Assignment {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Long getCompetitionId() {
+        return competitionId;
     }
 
-    public EnvType getEnvType() {
-        return envType;
+    public void setCompetitionId(Long competitionId) {
+        this.competitionId = competitionId;
     }
 
-    public void setEnvType(EnvType envType) {
-        this.envType = envType;
+    public User getPlayer() {
+        return player;
     }
 
-    public Long getEnvId() {
-        return envId;
-    }
-
-    public void setEnvId(Long envId) {
-        this.envId = envId;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
+    public void setPlayer(User player) {
+        this.player = player;
     }
 
     public User getAssignedBy() {

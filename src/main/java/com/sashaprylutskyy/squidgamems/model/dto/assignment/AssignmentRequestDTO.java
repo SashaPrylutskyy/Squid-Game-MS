@@ -1,32 +1,36 @@
 package com.sashaprylutskyy.squidgamems.model.dto.assignment;
 
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+
+import java.util.List;
 
 public class AssignmentRequestDTO {
 
     @NotNull
-    private Long envId;
+    private Long competitionId;
 
     @NotNull
-    private Long userId;
+    @NotEmpty
+    private List<Long> playerIds;
 
     public AssignmentRequestDTO() {
 
     }
 
-    public Long getEnvId() {
-        return envId;
+    public Long getCompetitionId() {
+        return competitionId;
     }
 
-    public void setEnvId(Long envId) {
-        this.envId = envId;
+    public void setCompetitionId(Long competitionId) {
+        this.competitionId = competitionId;
     }
 
-    public Long getUserId() {
-        return userId;
+    public List<Long> getPlayerIds() {
+        return playerIds;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setPlayerIds(List<Long> playerIds) {
+        this.playerIds = playerIds;
     }
 }

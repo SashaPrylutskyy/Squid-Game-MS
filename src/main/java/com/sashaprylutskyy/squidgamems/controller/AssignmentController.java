@@ -23,9 +23,9 @@ public class AssignmentController {
     }
 
     @PostMapping
-    @Secured({"ROLE_HOST", "ROLE_FRONTMAN"}) //Ручне призначення гравців у визначене competition.    !Видалити! -> А всі інші призначаються до LOBBY автоматично системою після успішної реєстрації.
-    public ResponseEntity<AssignmentResponseDTO> assign(@RequestBody @Validated AssignmentRequestDTO dto) {
-        AssignmentResponseDTO assignment = assignmentService.assign(dto);
+    @Secured({"ROLE_HOST", "ROLE_FRONTMAN"})
+    public ResponseEntity<AssignmentResponseDTO> assignPlayersToCompetition(@RequestBody @Validated AssignmentRequestDTO dto) {
+        AssignmentResponseDTO assignment = assignmentService.assignPlayersToCompetition(dto);
         return new ResponseEntity<>(assignment, HttpStatus.CREATED);
     }
 
