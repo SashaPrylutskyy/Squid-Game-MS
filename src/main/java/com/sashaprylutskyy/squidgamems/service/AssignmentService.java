@@ -29,9 +29,7 @@ public class AssignmentService {
     }
 
     public Assignment getByCompetitionIdAndPlayerId(Long competitionId, Long playerId) {
-        return assignmentRepo.findByCompetitionIdAndPlayerId(competitionId, playerId)
-                .orElseThrow(() -> new RuntimeException("Assignment not found: competitionId: %d, playerId: %d"
-                        .formatted(competitionId, playerId)));
+        return assignmentRepo.findByCompetitionIdAndPlayerId(competitionId, playerId);
     }
 
     //The goal of this method is to assign players to a competition
