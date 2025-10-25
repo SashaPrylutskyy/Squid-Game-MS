@@ -58,17 +58,7 @@ public class AssignmentService {
         }
 
         assignmentRepo.saveAll(assignmentsToSave);
-        AssignmentResponseDTO response = new AssignmentResponseDTO();
-        response.setCompetitionId(competitionId);
-        response.setProcessedAt(now);
-
-        response.setProcessedBy(userMapper.toSummaryDTO(principal));
-        List<UserSummaryDTO> playerDTOs = playerEntities.stream()
-                .map(userMapper::toSummaryDTO)
-                .toList();
-
-        response.setPlayers(playerDTOs);
-        return response;
+        return toResponseDTO(principal, competitionId, now, playerEntities);
     }
 
     public AssignmentResponseDTO removePlayersFromCompetition(AssignmentRequestDTO dto) {
@@ -88,9 +78,13 @@ public class AssignmentService {
         }
         assignmentRepo.deleteAll(assignmentsToDelete);
 
+        return toResponseDTO(principal, competitionId, now, playerEntities);
+    }
+
+    private AssignmentResponseDTO toResponseDTO(User principal, Long competitionId, Long currentTime, List<User> playerEntities) {
         AssignmentResponseDTO response = new AssignmentResponseDTO();
         response.setCompetitionId(competitionId);
-        response.setProcessedAt(now);
+        response.setProcessedAt(currentTime);
 
         response.setProcessedBy(userMapper.toSummaryDTO(principal));
         List<UserSummaryDTO> playerDTOs = playerEntities.stream()
@@ -102,16 +96,4 @@ public class AssignmentService {
         return response;
     }
 
-   /* public AssignmentResponseDTO toResponse(AssignmentRequestDTO dto, Long currentTime, User principal) {
-        AssignmentResponseDTO response = new AssignmentResponseDTO();
-        response.setCompetitionId(competitionId);
-        response.setProcessedAt(now);
-
-        response.setProcessedBy(userMapper.toSummaryDTO(principal));
-        List<UserSummaryDTO> playerDTOs = playerEntities.stream()
-                .map(userMapper::toSummaryDTO)
-                .toList();
-
-        response.setPlayers(playerDTOs);
-    }*/
 }
