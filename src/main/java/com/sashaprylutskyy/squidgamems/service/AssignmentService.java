@@ -28,6 +28,12 @@ public class AssignmentService {
         this.userMapper = userMapper;
     }
 
+    public Assignment getByCompetitionIdAndPlayerId(Long competitionId, Long playerId) {
+        return assignmentRepo.findByCompetitionIdAndPlayerId(competitionId, playerId)
+                .orElseThrow(() -> new RuntimeException("Assignment not found: competitionId: %d, playerId: %d"
+                        .formatted(competitionId, playerId)));
+    }
+
     //The goal of this method is to assign players to a competition
     @Transactional
     public AssignmentResponseDTO assignPlayersToCompetition(AssignmentRequestDTO dto) {
@@ -54,9 +60,9 @@ public class AssignmentService {
         assignmentRepo.saveAll(assignmentsToSave);
         AssignmentResponseDTO response = new AssignmentResponseDTO();
         response.setCompetitionId(competitionId);
-        response.setAssignedAt(now);
+        response.setProcessedAt(now);
 
-        response.setAssignedBy(userMapper.toSummaryDTO(principal));
+        response.setProcessedBy(userMapper.toSummaryDTO(principal));
         List<UserSummaryDTO> playerDTOs = playerEntities.stream()
                 .map(userMapper::toSummaryDTO)
                 .toList();
@@ -64,4 +70,48 @@ public class AssignmentService {
         response.setPlayers(playerDTOs);
         return response;
     }
+
+    public AssignmentResponseDTO removePlayersFromCompetition(AssignmentRequestDTO dto) {
+        User principal = userService.getPrincipal();
+        Long competitionId = dto.getCompetitionId(); //todo переконатися, що competition існує
+        Long now = System.currentTimeMillis();
+
+        List<Assignment> assignmentsToDelete = new ArrayList<>();
+        List<User> playerEntities = new ArrayList<>();
+
+        for (Long playerId : dto.getPlayerIds()) {
+            Assignment assignment = getByCompetitionIdAndPlayerId(competitionId, playerId);
+            if (assignment != null) {
+                assignmentsToDelete.add(assignment);
+                playerEntities.add(assignment.getPlayer());
+            }
+        }
+        assignmentRepo.deleteAll(assignmentsToDelete);
+
+        AssignmentResponseDTO response = new AssignmentResponseDTO();
+        response.setCompetitionId(competitionId);
+        response.setProcessedAt(now);
+
+        response.setProcessedBy(userMapper.toSummaryDTO(principal));
+        List<UserSummaryDTO> playerDTOs = playerEntities.stream()
+                .map(userMapper::toSummaryDTO)
+                .toList();
+
+        response.setPlayers(playerDTOs);
+
+        return response;
+    }
+
+   /* public AssignmentResponseDTO toResponse(AssignmentRequestDTO dto, Long currentTime, User principal) {
+        AssignmentResponseDTO response = new AssignmentResponseDTO();
+        response.setCompetitionId(competitionId);
+        response.setProcessedAt(now);
+
+        response.setProcessedBy(userMapper.toSummaryDTO(principal));
+        List<UserSummaryDTO> playerDTOs = playerEntities.stream()
+                .map(userMapper::toSummaryDTO)
+                .toList();
+
+        response.setPlayers(playerDTOs);
+    }*/
 }

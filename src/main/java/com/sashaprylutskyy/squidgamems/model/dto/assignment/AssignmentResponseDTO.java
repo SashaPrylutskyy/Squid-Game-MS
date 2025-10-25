@@ -8,8 +8,8 @@ public class AssignmentResponseDTO {
 
     private Long competitionId;
     private List<UserSummaryDTO> players;
-    private UserSummaryDTO assignedBy;
-    private Long assignedAt;
+    private UserSummaryDTO processedBy;
+    private Long processedAt;
 
     public AssignmentResponseDTO() {
 
@@ -31,19 +31,19 @@ public class AssignmentResponseDTO {
         this.players = players;
     }
 
-    public UserSummaryDTO getAssignedBy() {
-        return assignedBy;
+    public UserSummaryDTO getProcessedBy() {
+        return processedBy;
     }
 
-    public void setAssignedBy(UserSummaryDTO assignedBy) {
-        this.assignedBy = assignedBy;
+    public void setProcessedBy(UserSummaryDTO processedBy) {
+        this.processedBy = processedBy;
     }
 
-    public Long getAssignedAt() {
-        return assignedAt;
+    public Long getProcessedAt() {
+        return processedAt;
     }
 
-    public void setAssignedAt(Long assignedAt) {
-        this.assignedAt = assignedAt;
+    public void setProcessedAt(Long processedAt) {
+        this.processedAt = processedAt;
     }
 }

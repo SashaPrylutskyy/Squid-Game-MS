@@ -7,10 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/assignment")
@@ -27,6 +24,13 @@ public class AssignmentController {
     public ResponseEntity<AssignmentResponseDTO> assignPlayersToCompetition(@RequestBody @Validated AssignmentRequestDTO dto) {
         AssignmentResponseDTO assignment = assignmentService.assignPlayersToCompetition(dto);
         return new ResponseEntity<>(assignment, HttpStatus.CREATED);
+    }
+
+    @DeleteMapping
+    @Secured({"ROLE_HOST", "ROLE_FRONTMAN"})
+    public ResponseEntity<AssignmentResponseDTO> removePlayersFromCompetition(@RequestBody @Validated AssignmentRequestDTO dto) {
+        AssignmentResponseDTO assignment = assignmentService.removePlayersFromCompetition(dto);
+        return new ResponseEntity<>(assignment, HttpStatus.OK);
     }
 
 }
