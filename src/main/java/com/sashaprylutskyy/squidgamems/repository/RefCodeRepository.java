@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface RefCodeRepository extends JpaRepository<RefCode, Long> {
 
     Optional<RefCode> getByUser(User user);
+
+    Optional<RefCode> findByRefCode(String refCode);
 }

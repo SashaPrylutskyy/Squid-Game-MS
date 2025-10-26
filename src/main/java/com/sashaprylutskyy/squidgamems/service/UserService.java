@@ -1,11 +1,13 @@
 package com.sashaprylutskyy.squidgamems.service;
 
+import com.sashaprylutskyy.squidgamems.model.Lobby;
+import com.sashaprylutskyy.squidgamems.model.RefCode;
 import com.sashaprylutskyy.squidgamems.model.Role;
 import com.sashaprylutskyy.squidgamems.model.User;
-import com.sashaprylutskyy.squidgamems.model.dto.user.LoginRequestDTO;
-import com.sashaprylutskyy.squidgamems.model.dto.user.UserRequestDTO;
-import com.sashaprylutskyy.squidgamems.model.dto.user.UserResponseDTO;
+import com.sashaprylutskyy.squidgamems.model.dto.refCode.RefCodeSummaryDTO;
+import com.sashaprylutskyy.squidgamems.model.dto.user.*;
 import com.sashaprylutskyy.squidgamems.model.enums.UserStatus;
+import com.sashaprylutskyy.squidgamems.model.mapper.RefCodeMapper;
 import com.sashaprylutskyy.squidgamems.model.mapper.UserMapper;
 import com.sashaprylutskyy.squidgamems.repository.RoleRepository;
 import com.sashaprylutskyy.squidgamems.repository.UserRepository;
@@ -30,12 +32,15 @@ public class UserService {
     private final UserMapper userMapper;
     private final LobbyService lobbyService;
     private final RoleRepository roleRepo;
+    private final RefCodeService refCodeService;
+    private final RefCodeMapper refCodeMapper;
 
 
     public UserService(UserRepository userRepo, JwtService jwtService,
                        PasswordEncoder encoder, RoleService roleService,
                        UserMapper userMapper, LobbyService lobbyService,
-                       RoleRepository roleRepo) {
+                       RoleRepository roleRepo, RefCodeService refCodeService,
+                       RefCodeMapper refCodeMapper) {
         this.userRepo = userRepo;
         this.jwtService = jwtService;
         this.encoder = encoder;
@@ -43,6 +48,8 @@ public class UserService {
         this.userMapper = userMapper;
         this.lobbyService = lobbyService;
         this.roleRepo = roleRepo;
+        this.refCodeService = refCodeService;
+        this.refCodeMapper = refCodeMapper;
     }
 
     public User getPrincipal() {
@@ -79,6 +86,24 @@ public class UserService {
     }
 
     @Transactional
+    public UserSummaryDTO registerPlayer(UserRequestPlayerDTO dto) {
+        RefCode refCode = refCodeService.getRefCode(dto.getRefCode());
+        User salesman = refCode.getUser();
+
+        Lobby lobby = lobbyService.getLobbyByUserId(salesman.getId());
+        Long lobbyId = lobby.getLobbyId();
+
+        UserRequestDTO playerDTO = userMapper.toUserRequestDTO(dto);
+        Long playerRoleId = roleService.getRoleIdByTitle("PLAYER");
+        playerDTO.setRoleId(playerRoleId);
+
+        User player = createUserFromData(playerDTO);
+
+        lobbyService.assignUserToLobby(player, lobbyId);
+        return userMapper.toSummaryDTO(player);
+    }
+
+    @Transactional
     public User createUserFromData(UserRequestDTO dto) {
         try {
             Long currentTime = System.currentTimeMillis();
@@ -96,6 +121,12 @@ public class UserService {
         } catch (DataIntegrityViolationException e) {
             throw new DuplicateKeyException("Email is already taken.");
         }
+    }
+
+    public RefCodeSummaryDTO getMyRefCode() {
+        User principal = getPrincipal();
+        RefCode refCode = refCodeService.getRefCode(principal);
+        return refCodeMapper.toSummaryDTO(refCode);
     }
 
     public String login(LoginRequestDTO dto) {

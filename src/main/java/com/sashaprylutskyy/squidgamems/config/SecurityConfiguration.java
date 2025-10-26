@@ -41,7 +41,8 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(   "/api/auth/**",
                                             "/api/job-offer/*/accept",
-                                            "/api/job-offer/*/decline").permitAll()
+                                            "/api/job-offer/*/decline",
+                                            "/api/ref-code/join").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

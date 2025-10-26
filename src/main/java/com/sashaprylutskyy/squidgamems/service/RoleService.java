@@ -17,4 +17,10 @@ public class RoleService {
         return repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Role not found"));
     }
+
+    public Long getRoleIdByTitle(String title) {
+        Role role = repo.findByRoleTitle(title)
+                .orElseThrow(() -> new RuntimeException("Role not found"));
+        return role.getId();
+    }
 }

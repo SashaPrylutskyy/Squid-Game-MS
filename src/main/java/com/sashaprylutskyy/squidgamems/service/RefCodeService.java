@@ -13,14 +13,9 @@ import org.springframework.stereotype.Service;
 public class RefCodeService {
 
     private final RefCodeRepository refCodeRepo;
-    private final RefCodeMapper refCodeMapper;
-    private final UserService userService;
 
-    public RefCodeService(RefCodeRepository refCodeRepo, RefCodeMapper refCodeMapper,
-                          UserService userService) {
+    public RefCodeService(RefCodeRepository refCodeRepo) {
         this.refCodeRepo = refCodeRepo;
-        this.refCodeMapper = refCodeMapper;
-        this.userService = userService;
     }
 
     public void assignRefCode(User salesman) {
@@ -31,16 +26,15 @@ public class RefCodeService {
         refCodeRepo.save(refCode);
     }
 
-    private RefCode getRefCode(User user) {
+    public RefCode getRefCode(User user) {
         return refCodeRepo.getByUser(user)
                 .orElseThrow(() -> new NoResultException("User %s doesn't have a referral code."
                         .formatted(user.getEmail())));
     }
 
-    public RefCodeSummaryDTO getRefCode() {
-        User principal = userService.getPrincipal();
-        RefCode refCode = getRefCode(principal);
-
-        return refCodeMapper.toSummaryDTO(refCode);
+    public RefCode getRefCode(String refcode) {
+        return refCodeRepo.findByRefCode(refcode)
+                .orElseThrow(() -> new NoResultException("Referral code %s isn't found."
+                        .formatted(refcode)));
     }
 }
