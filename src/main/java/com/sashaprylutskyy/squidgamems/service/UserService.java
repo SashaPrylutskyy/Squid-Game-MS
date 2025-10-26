@@ -60,11 +60,6 @@ public class UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("User No.%d not found".formatted(id)));
     }
 
-    //todo
-//    public UserResponseDTO registerUser(UserRequestDTO dto, String token) {
-//        return null;
-//    }
-
     @Transactional
     public UserResponseDTO registerHOSTorVIP(UserRequestDTO dto) {
         Role role = roleService.getRoleById(dto.getRoleId());

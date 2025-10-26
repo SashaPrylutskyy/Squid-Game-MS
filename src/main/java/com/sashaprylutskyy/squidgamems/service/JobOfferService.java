@@ -28,16 +28,17 @@ public class JobOfferService {
     private final RoleService roleService;
     private final JobOfferMapper jobOfferMapper;
     private final LobbyService lobbyService;
-
+    private final RefCodeService refCodeService;
 
     public JobOfferService(JobOfferRepository jobOfferRepo, UserService userService,
                            RoleService roleService, JobOfferMapper jobOfferMapper,
-                           LobbyService lobbyService) {
+                           LobbyService lobbyService, RefCodeService refCodeService) {
         this.jobOfferRepo = jobOfferRepo;
         this.userService = userService;
         this.roleService = roleService;
         this.jobOfferMapper = jobOfferMapper;
         this.lobbyService = lobbyService;
+        this.refCodeService = refCodeService;
     }
 
     public JobOffer getOfferByToken(UUID token) {
@@ -90,6 +91,10 @@ public class JobOfferService {
         offer.setOfferStatus(JobOfferStatus.ACCEPTED);
         offer.setUpdatedAt(System.currentTimeMillis());
         offer = jobOfferRepo.save(offer);
+
+        if (newUser.getRole().toString().equals("SALESMAN")) {
+            refCodeService.assignRefCode(newUser);
+        }
 
         return jobOfferMapper.toSummaryDTO(offer);
     }
