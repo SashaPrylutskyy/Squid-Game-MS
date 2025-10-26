@@ -34,13 +34,14 @@ public class UserService {
     private final RoleRepository roleRepo;
     private final RefCodeService refCodeService;
     private final RefCodeMapper refCodeMapper;
+    private final RecruitmentLogService recruitmentLogService;
 
 
     public UserService(UserRepository userRepo, JwtService jwtService,
                        PasswordEncoder encoder, RoleService roleService,
                        UserMapper userMapper, LobbyService lobbyService,
                        RoleRepository roleRepo, RefCodeService refCodeService,
-                       RefCodeMapper refCodeMapper) {
+                       RefCodeMapper refCodeMapper, RecruitmentLogService recruitmentLogService) {
         this.userRepo = userRepo;
         this.jwtService = jwtService;
         this.encoder = encoder;
@@ -50,6 +51,7 @@ public class UserService {
         this.roleRepo = roleRepo;
         this.refCodeService = refCodeService;
         this.refCodeMapper = refCodeMapper;
+        this.recruitmentLogService = recruitmentLogService;
     }
 
     public User getPrincipal() {
@@ -99,7 +101,9 @@ public class UserService {
 
         User player = createUserFromData(playerDTO);
 
+        recruitmentLogService.addLog(player, refCode);
         lobbyService.assignUserToLobby(player, lobbyId);
+
         return userMapper.toSummaryDTO(player);
     }
 
