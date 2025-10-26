@@ -42,7 +42,7 @@ public class SecurityConfiguration {
                         .requestMatchers(   "/api/auth/**",
                                             "/api/job-offer/*/accept",
                                             "/api/job-offer/*/decline",
-                                            "/api/ref-code/join").permitAll()
+                                            "/api/auth/join").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

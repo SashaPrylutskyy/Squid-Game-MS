@@ -1,8 +1,6 @@
 package com.sashaprylutskyy.squidgamems.controller;
 
-import com.sashaprylutskyy.squidgamems.model.dto.user.LoginRequestDTO;
-import com.sashaprylutskyy.squidgamems.model.dto.user.UserRequestDTO;
-import com.sashaprylutskyy.squidgamems.model.dto.user.UserResponseDTO;
+import com.sashaprylutskyy.squidgamems.model.dto.user.*;
 import com.sashaprylutskyy.squidgamems.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,5 +30,11 @@ public class AuthController {
     public ResponseEntity<String> login(@Validated @RequestBody LoginRequestDTO dto) {
         String jwt = userService.login(dto);
         return ResponseEntity.ok(jwt);
+    }
+
+    @PostMapping("/join")
+    public ResponseEntity<UserSummaryDTO> joinAGame(@RequestBody @Validated UserRequestPlayerDTO dto) {
+        UserSummaryDTO player = userService.registerPlayer(dto);
+        return new ResponseEntity<>(player, HttpStatus.CREATED);
     }
 }
