@@ -1,5 +1,6 @@
 package com.sashaprylutskyy.squidgamems.controller;
 
+import com.sashaprylutskyy.squidgamems.model.dto.jobOffer.JobOfferRequestUserDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.jobOffer.JobOfferSummaryDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.jobOffer.JobOfferRequestDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.jobOffer.JobOfferResponseDTO;
@@ -31,8 +32,8 @@ public class JobOfferController {
     }
 
     @PostMapping("/{token}/accept")
-    public ResponseEntity<JobOfferSummaryDTO> acceptJobOffer
-            (@PathVariable UUID token, @RequestBody @Validated UserRequestDTO dto) {
+    public ResponseEntity<JobOfferSummaryDTO> acceptJobOffer(@PathVariable UUID token,
+                                                             @RequestBody @Validated JobOfferRequestUserDTO dto) {
         JobOfferSummaryDTO jobOfferSummary = jobOfferService.acceptJobOffer(token, dto);
         return new ResponseEntity<>(jobOfferSummary, HttpStatus.ACCEPTED);
     }

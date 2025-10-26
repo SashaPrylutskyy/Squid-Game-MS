@@ -1,9 +1,8 @@
 package com.sashaprylutskyy.squidgamems.controller;
 
+import com.sashaprylutskyy.squidgamems.model.dto.user.LoginRequestDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.user.UserRequestDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.user.UserResponseDTO;
-import com.sashaprylutskyy.squidgamems.model.interfaceGroup.OnCreate;
-import com.sashaprylutskyy.squidgamems.model.interfaceGroup.OnLogin;
 import com.sashaprylutskyy.squidgamems.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,13 +23,13 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponseDTO> createUser(@Validated(OnCreate.class) @RequestBody UserRequestDTO dto) {
+    public ResponseEntity<UserResponseDTO> createUser(@Validated @RequestBody UserRequestDTO dto) {
         UserResponseDTO userResponse = userService.registerHOSTorVIP(dto);
         return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@Validated(OnLogin.class) @RequestBody UserRequestDTO dto) {
+    public ResponseEntity<String> login(@Validated @RequestBody LoginRequestDTO dto) {
         String jwt = userService.login(dto);
         return ResponseEntity.ok(jwt);
     }

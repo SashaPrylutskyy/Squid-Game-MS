@@ -2,6 +2,7 @@ package com.sashaprylutskyy.squidgamems.model.mapper;
 
 import com.sashaprylutskyy.squidgamems.model.Role;
 import com.sashaprylutskyy.squidgamems.model.User;
+import com.sashaprylutskyy.squidgamems.model.dto.jobOffer.JobOfferRequestUserDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.user.UserRequestDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.user.UserResponseDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.user.UserSummaryDTO;
@@ -13,6 +14,11 @@ public interface UserMapper {
 
     @Mapping(source = "role", target = "roleTitle")
     UserResponseDTO toResponseDTO(User user);
+
+    @Mapping(target = "email", ignore = true)
+    @Mapping(target = "roleId", ignore = true)
+    @Mapping(target = "balance", ignore = true)
+    UserRequestDTO toUserRequestDTO(JobOfferRequestUserDTO dto);
 
     @Mapping(source = "role", target = "roleTitle")
     UserSummaryDTO toSummaryDTO(User user);

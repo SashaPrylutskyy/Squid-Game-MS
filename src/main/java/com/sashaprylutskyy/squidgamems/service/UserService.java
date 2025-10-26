@@ -2,10 +2,12 @@ package com.sashaprylutskyy.squidgamems.service;
 
 import com.sashaprylutskyy.squidgamems.model.Role;
 import com.sashaprylutskyy.squidgamems.model.User;
+import com.sashaprylutskyy.squidgamems.model.dto.user.LoginRequestDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.user.UserRequestDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.user.UserResponseDTO;
 import com.sashaprylutskyy.squidgamems.model.enums.UserStatus;
 import com.sashaprylutskyy.squidgamems.model.mapper.UserMapper;
+import com.sashaprylutskyy.squidgamems.repository.RoleRepository;
 import com.sashaprylutskyy.squidgamems.repository.UserRepository;
 import com.sashaprylutskyy.squidgamems.security.JwtService;
 import jakarta.transaction.Transactional;
@@ -27,17 +29,20 @@ public class UserService {
     private final RoleService roleService;
     private final UserMapper userMapper;
     private final LobbyService lobbyService;
+    private final RoleRepository roleRepo;
 
 
     public UserService(UserRepository userRepo, JwtService jwtService,
                        PasswordEncoder encoder, RoleService roleService,
-                       UserMapper userMapper, LobbyService lobbyService) {
+                       UserMapper userMapper, LobbyService lobbyService,
+                       RoleRepository roleRepo) {
         this.userRepo = userRepo;
         this.jwtService = jwtService;
         this.encoder = encoder;
         this.roleService = roleService;
         this.userMapper = userMapper;
         this.lobbyService = lobbyService;
+        this.roleRepo = roleRepo;
     }
 
     public User getPrincipal() {
@@ -68,13 +73,13 @@ public class UserService {
             throw new RuntimeException("You're able to register an account with either Host or VIP role.");
         }
 
-        User user = createUserFromData(dto, role);
+        User user = createUserFromData(dto);
         lobbyService.assignUserToLobby(user, user.getId());
         return userMapper.toResponseDTO(user);
     }
 
     @Transactional
-    public User createUserFromData(UserRequestDTO dto, Role role) {
+    public User createUserFromData(UserRequestDTO dto) {
         try {
             Long currentTime = System.currentTimeMillis();
 
@@ -83,7 +88,9 @@ public class UserService {
             user.setStatus(UserStatus.ALIVE);
             user.setCreatedAt(currentTime);
             user.setUpdatedAt(currentTime);
-            user.setRole(role);
+            user.setRole(
+                    roleRepo.getReferenceById(dto.getRoleId())
+            );
 
             return userRepo.save(user);
         } catch (DataIntegrityViolationException e) {
@@ -91,7 +98,7 @@ public class UserService {
         }
     }
 
-    public String login(UserRequestDTO dto) {
+    public String login(LoginRequestDTO dto) {
         User user = getUserByEmail(dto.getEmail());
         if (encoder.matches(dto.getPassword(), user.getPassword())) {
             return jwtService.generateToken(user);

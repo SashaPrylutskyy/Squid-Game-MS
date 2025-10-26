@@ -1,18 +1,16 @@
 package com.sashaprylutskyy.squidgamems.model.dto.jobOffer;
 
-import com.sashaprylutskyy.squidgamems.model.interfaceGroup.OnCreate;
-import com.sashaprylutskyy.squidgamems.model.interfaceGroup.OnLogin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 public class JobOfferRequestDTO {
 
-    @NotBlank(groups = {OnCreate.class, OnLogin.class})
+    @NotBlank(message = "Email is missing")
     @Pattern(regexp = "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$", message = "Invalid email")
     private String email;
 
-    @NotNull
+    @NotNull(message = "RoleId is missing")
     private Long roleId;
 
     public JobOfferRequestDTO() {

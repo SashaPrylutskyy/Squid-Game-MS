@@ -5,11 +5,13 @@ import com.sashaprylutskyy.squidgamems.model.Lobby;
 import com.sashaprylutskyy.squidgamems.model.Role;
 import com.sashaprylutskyy.squidgamems.model.User;
 import com.sashaprylutskyy.squidgamems.model.dto.jobOffer.JobOfferRequestDTO;
+import com.sashaprylutskyy.squidgamems.model.dto.jobOffer.JobOfferRequestUserDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.jobOffer.JobOfferResponseDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.jobOffer.JobOfferSummaryDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.user.UserRequestDTO;
 import com.sashaprylutskyy.squidgamems.model.enums.JobOfferStatus;
 import com.sashaprylutskyy.squidgamems.model.mapper.JobOfferMapper;
+import com.sashaprylutskyy.squidgamems.model.mapper.UserMapper;
 import com.sashaprylutskyy.squidgamems.repository.JobOfferRepository;
 import com.sashaprylutskyy.squidgamems.repository.LobbyRepository;
 import jakarta.persistence.NoResultException;
@@ -29,16 +31,19 @@ public class JobOfferService {
     private final JobOfferMapper jobOfferMapper;
     private final LobbyService lobbyService;
     private final RefCodeService refCodeService;
+    private final UserMapper userMapper;
 
     public JobOfferService(JobOfferRepository jobOfferRepo, UserService userService,
                            RoleService roleService, JobOfferMapper jobOfferMapper,
-                           LobbyService lobbyService, RefCodeService refCodeService) {
+                           LobbyService lobbyService, RefCodeService refCodeService,
+                           UserMapper userMapper) {
         this.jobOfferRepo = jobOfferRepo;
         this.userService = userService;
         this.roleService = roleService;
         this.jobOfferMapper = jobOfferMapper;
         this.lobbyService = lobbyService;
         this.refCodeService = refCodeService;
+        this.userMapper = userMapper;
     }
 
     public JobOffer getOfferByToken(UUID token) {
@@ -75,25 +80,26 @@ public class JobOfferService {
     }
 
     @Transactional
-    public JobOfferSummaryDTO acceptJobOffer(UUID token, UserRequestDTO dto) {
+    public JobOfferSummaryDTO acceptJobOffer(UUID token, JobOfferRequestUserDTO dto) {
         JobOffer offer = getOfferByToken(token);
 
         if (offer.getOfferStatus() != JobOfferStatus.AWAITING) {
-            throw new IllegalStateException("Job offer is " + offer.getOfferStatus().name());
+            throw new IllegalStateException("Job offer status is" + offer.getOfferStatus().name());
         }
-        if (!offer.getEmail().equals(dto.getEmail())) {
-            throw new SecurityException("Email in DTO does not match the invited email.");
-        }
-        User newUser = userService.createUserFromData(dto, offer.getRole());
+        UserRequestDTO userDTO = userMapper.toUserRequestDTO(dto);
+        userDTO.setEmail(offer.getEmail());
+        userDTO.setRoleId(offer.getRole().getId());
 
-        lobbyService.assignUserToLobby(newUser, offer.getLobbyId());
+        User employee = userService.createUserFromData(userDTO);
+
+        lobbyService.assignUserToLobby(employee, offer.getLobbyId());
 
         offer.setOfferStatus(JobOfferStatus.ACCEPTED);
         offer.setUpdatedAt(System.currentTimeMillis());
         offer = jobOfferRepo.save(offer);
 
-        if (newUser.getRole().toString().equals("SALESMAN")) {
-            refCodeService.assignRefCode(newUser);
+        if (employee.getRole().toString().equals("SALESMAN")) {
+            refCodeService.assignRefCode(employee);
         }
 
         return jobOfferMapper.toSummaryDTO(offer);
