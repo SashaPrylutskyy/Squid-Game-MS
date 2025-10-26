@@ -2,7 +2,7 @@ package com.sashaprylutskyy.squidgamems.model.mapper;
 
 import com.sashaprylutskyy.squidgamems.model.Role;
 import com.sashaprylutskyy.squidgamems.model.User;
-import com.sashaprylutskyy.squidgamems.model.dto.jobOffer.JobOfferRequestUserDTO;
+import com.sashaprylutskyy.squidgamems.model.dto.user.JobOfferRequestUserDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.user.UserRequestDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.user.UserResponseDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.user.UserSummaryDTO;

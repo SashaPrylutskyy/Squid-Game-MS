@@ -1,10 +1,9 @@
 package com.sashaprylutskyy.squidgamems.controller;
 
-import com.sashaprylutskyy.squidgamems.model.dto.jobOffer.JobOfferRequestUserDTO;
+import com.sashaprylutskyy.squidgamems.model.dto.user.JobOfferRequestUserDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.jobOffer.JobOfferSummaryDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.jobOffer.JobOfferRequestDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.jobOffer.JobOfferResponseDTO;
-import com.sashaprylutskyy.squidgamems.model.dto.user.UserRequestDTO;
 import com.sashaprylutskyy.squidgamems.service.JobOfferService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
