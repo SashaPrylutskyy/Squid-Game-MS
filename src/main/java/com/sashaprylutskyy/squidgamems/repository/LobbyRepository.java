@@ -1,6 +1,7 @@
 package com.sashaprylutskyy.squidgamems.repository;
 
 import com.sashaprylutskyy.squidgamems.model.Lobby;
+import com.sashaprylutskyy.squidgamems.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,4 +11,6 @@ import java.util.Optional;
 public interface LobbyRepository extends JpaRepository<Lobby, Long> {
 
     Optional<Lobby> findByUserId(Long userId);
+
+    Optional<Lobby> findByUser(User user);
 }

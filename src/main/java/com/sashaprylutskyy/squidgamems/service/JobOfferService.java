@@ -2,7 +2,7 @@ package com.sashaprylutskyy.squidgamems.service;
 
 import com.sashaprylutskyy.squidgamems.model.JobOffer;
 import com.sashaprylutskyy.squidgamems.model.Lobby;
-import com.sashaprylutskyy.squidgamems.model.Role;
+import com.sashaprylutskyy.squidgamems.model.enums.Role;
 import com.sashaprylutskyy.squidgamems.model.User;
 import com.sashaprylutskyy.squidgamems.model.dto.jobOffer.JobOfferRequestDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.user.JobOfferRequestUserDTO;
@@ -26,19 +26,16 @@ public class JobOfferService {
 
     private final JobOfferRepository jobOfferRepo;
     private final UserService userService;
-    private final RoleService roleService;
     private final JobOfferMapper jobOfferMapper;
     private final LobbyService lobbyService;
     private final RefCodeService refCodeService;
     private final UserMapper userMapper;
 
     public JobOfferService(JobOfferRepository jobOfferRepo, UserService userService,
-                           RoleService roleService, JobOfferMapper jobOfferMapper,
-                           LobbyService lobbyService, RefCodeService refCodeService,
-                           UserMapper userMapper) {
+                           JobOfferMapper jobOfferMapper, LobbyService lobbyService,
+                           RefCodeService refCodeService, UserMapper userMapper) {
         this.jobOfferRepo = jobOfferRepo;
         this.userService = userService;
-        this.roleService = roleService;
         this.jobOfferMapper = jobOfferMapper;
         this.lobbyService = lobbyService;
         this.refCodeService = refCodeService;
@@ -50,10 +47,11 @@ public class JobOfferService {
                 .orElseThrow(() -> new NoResultException("Job offer %s isn't found".formatted(token)));
     }
 
+    @Transactional
     public JobOfferResponseDTO makeJobOffer(JobOfferRequestDTO dto) {
         User principal = userService.getPrincipal();
-        Role role = roleService.getRoleById(dto.getRoleId());
-        Lobby currentLobby = lobbyService.getLobbyByUserId(principal.getId());
+        Role role = dto.getRole();
+        Lobby currentLobby = lobbyService.getLobbyByUser(principal);
 
         try {
             User user = userService.getUserByEmail(dto.getEmail());
@@ -62,7 +60,7 @@ public class JobOfferService {
             }
         } catch (UsernameNotFoundException ignored) {}
 
-        if (role.toString().equals("HOST") || role.toString().equals("VIP") || role.toString().equals("PLAYER")) {
+        if (role == Role.PLAYER || role == Role.HOST || role == Role.VIP) {
             throw new RuntimeException("Unable to make a job offer neither for VIP nor HOST nor PLAYER");
         }
 
@@ -87,7 +85,7 @@ public class JobOfferService {
         }
         UserRequestDTO userDTO = userMapper.toUserRequestDTO(dto);
         userDTO.setEmail(offer.getEmail());
-        userDTO.setRoleId(offer.getRole().getId());
+        userDTO.setRole(offer.getRole());
 
         User employee = userService.createUserFromData(userDTO);
 
@@ -97,7 +95,7 @@ public class JobOfferService {
         offer.setUpdatedAt(System.currentTimeMillis());
         offer = jobOfferRepo.save(offer);
 
-        if (employee.getRole().toString().equals("SALESMAN")) {
+        if (employee.getRole() == Role.SALESMAN) {
             refCodeService.assignRefCode(employee);
         }
 

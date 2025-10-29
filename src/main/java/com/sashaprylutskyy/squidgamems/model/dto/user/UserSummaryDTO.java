@@ -1,12 +1,13 @@
 package com.sashaprylutskyy.squidgamems.model.dto.user;
 
+import com.sashaprylutskyy.squidgamems.model.enums.Role;
 import com.sashaprylutskyy.squidgamems.model.enums.UserStatus;
 
 public class UserSummaryDTO {
 
     private Long id;
     private String email;
-    private String roleTitle;
+    private Role role;
     private UserStatus status;
 
     public UserSummaryDTO() {
@@ -29,12 +30,12 @@ public class UserSummaryDTO {
         this.email = email;
     }
 
-    public String getRoleTitle() {
-        return roleTitle;
+    public Role getRole() {
+        return role;
     }
 
-    public void setRoleTitle(String roleTitle) {
-        this.roleTitle = roleTitle;
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     public UserStatus getStatus() {

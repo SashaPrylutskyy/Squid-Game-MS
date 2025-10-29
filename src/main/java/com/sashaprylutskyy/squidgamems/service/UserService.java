@@ -2,14 +2,13 @@ package com.sashaprylutskyy.squidgamems.service;
 
 import com.sashaprylutskyy.squidgamems.model.Lobby;
 import com.sashaprylutskyy.squidgamems.model.RefCode;
-import com.sashaprylutskyy.squidgamems.model.Role;
 import com.sashaprylutskyy.squidgamems.model.User;
 import com.sashaprylutskyy.squidgamems.model.dto.refCode.RefCodeSummaryDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.user.*;
+import com.sashaprylutskyy.squidgamems.model.enums.Role;
 import com.sashaprylutskyy.squidgamems.model.enums.UserStatus;
 import com.sashaprylutskyy.squidgamems.model.mapper.RefCodeMapper;
 import com.sashaprylutskyy.squidgamems.model.mapper.UserMapper;
-import com.sashaprylutskyy.squidgamems.repository.RoleRepository;
 import com.sashaprylutskyy.squidgamems.repository.UserRepository;
 import com.sashaprylutskyy.squidgamems.security.JwtService;
 import jakarta.transaction.Transactional;
@@ -28,27 +27,22 @@ public class UserService {
     private final UserRepository userRepo;
     private final JwtService jwtService;
     private final PasswordEncoder encoder;
-    private final RoleService roleService;
     private final UserMapper userMapper;
     private final LobbyService lobbyService;
-    private final RoleRepository roleRepo;
     private final RefCodeService refCodeService;
     private final RefCodeMapper refCodeMapper;
     private final RecruitmentLogService recruitmentLogService;
 
 
     public UserService(UserRepository userRepo, JwtService jwtService,
-                       PasswordEncoder encoder, RoleService roleService,
-                       UserMapper userMapper, LobbyService lobbyService,
-                       RoleRepository roleRepo, RefCodeService refCodeService,
+                       PasswordEncoder encoder, UserMapper userMapper,
+                       LobbyService lobbyService, RefCodeService refCodeService,
                        RefCodeMapper refCodeMapper, RecruitmentLogService recruitmentLogService) {
         this.userRepo = userRepo;
         this.jwtService = jwtService;
         this.encoder = encoder;
-        this.roleService = roleService;
         this.userMapper = userMapper;
         this.lobbyService = lobbyService;
-        this.roleRepo = roleRepo;
         this.refCodeService = refCodeService;
         this.refCodeMapper = refCodeMapper;
         this.recruitmentLogService = recruitmentLogService;
@@ -76,14 +70,15 @@ public class UserService {
 
     @Transactional
     public UserResponseDTO registerHOSTorVIP(UserRequestDTO dto) {
-        Role role = roleService.getRoleById(dto.getRoleId());
-
-        if (!role.toString().equals("HOST") && !role.toString().equals("VIP")) {
-            throw new RuntimeException("You're able to register an account with either Host or VIP role.");
+        if (dto.getRole() != Role.HOST && dto.getRole() != Role.VIP) {
+            throw new RuntimeException("You're able to register an account with either HOST or VIP role.");
         }
 
         User user = createUserFromData(dto);
-        lobbyService.assignUserToLobby(user, user.getId());
+
+        if (user.getRole() == Role.HOST) {
+            lobbyService.assignUserToLobby(user, user.getId());
+        }
         return userMapper.toResponseDTO(user);
     }
 
@@ -92,12 +87,11 @@ public class UserService {
         RefCode refCode = refCodeService.getRefCode(dto.getRefCode());
         User salesman = refCode.getUser();
 
-        Lobby lobby = lobbyService.getLobbyByUserId(salesman.getId());
+        Lobby lobby = lobbyService.getLobbyByUser(salesman);
         Long lobbyId = lobby.getLobbyId();
 
         UserRequestDTO playerDTO = userMapper.toUserRequestDTO(dto);
-        Long playerRoleId = roleService.getRoleIdByTitle("PLAYER");
-        playerDTO.setRoleId(playerRoleId);
+        playerDTO.setRole(Role.PLAYER);
 
         User player = createUserFromData(playerDTO);
 
@@ -117,9 +111,6 @@ public class UserService {
             user.setStatus(UserStatus.ALIVE);
             user.setCreatedAt(currentTime);
             user.setUpdatedAt(currentTime);
-            user.setRole(
-                    roleRepo.getReferenceById(dto.getRoleId())
-            );
 
             return userRepo.save(user);
         } catch (DataIntegrityViolationException e) {

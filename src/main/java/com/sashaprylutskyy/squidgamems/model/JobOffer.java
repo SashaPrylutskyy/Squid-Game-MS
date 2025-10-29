@@ -1,6 +1,7 @@
 package com.sashaprylutskyy.squidgamems.model;
 
 import com.sashaprylutskyy.squidgamems.model.enums.JobOfferStatus;
+import com.sashaprylutskyy.squidgamems.model.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 
@@ -21,8 +22,8 @@ public class JobOffer {
     @JoinColumn(name = "offered_by_id")
     private User offeredBy;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id", nullable = false)
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Role role;
 
     @Email

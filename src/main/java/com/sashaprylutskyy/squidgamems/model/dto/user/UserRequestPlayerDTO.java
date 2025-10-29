@@ -39,8 +39,6 @@ public class UserRequestPlayerDTO {
     @NotNull(message = "Birthday is required")
     private Date birthday;
 
-    private Long balance;
-
     public UserRequestPlayerDTO() {
 
     }
@@ -109,11 +107,4 @@ public class UserRequestPlayerDTO {
         this.birthday = birthday;
     }
 
-    public Long getBalance() {
-        return balance;
-    }
-
-    public void setBalance(Long balance) {
-        this.balance = balance;
-    }
 }

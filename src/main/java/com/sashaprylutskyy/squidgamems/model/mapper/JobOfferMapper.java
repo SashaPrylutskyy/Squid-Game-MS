@@ -1,7 +1,6 @@
 package com.sashaprylutskyy.squidgamems.model.mapper;
 
 import com.sashaprylutskyy.squidgamems.model.JobOffer;
-import com.sashaprylutskyy.squidgamems.model.Role;
 import com.sashaprylutskyy.squidgamems.model.dto.jobOffer.JobOfferResponseDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.jobOffer.JobOfferSummaryDTO;
 import org.mapstruct.Mapper;
@@ -14,9 +13,5 @@ public interface JobOfferMapper {
 
     @Mapping(target = "role", ignore = true)
     JobOfferSummaryDTO toSummaryDTO(JobOffer jobOffer);
-
-    default String roleToString(Role role) {
-        return role != null ? role.toString() : null;
-    }
 
 }

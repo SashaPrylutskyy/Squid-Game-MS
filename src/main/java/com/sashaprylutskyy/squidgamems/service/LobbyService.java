@@ -21,6 +21,12 @@ public class LobbyService {
                         ("User No.%d is not assigned to any lobby.".formatted(id)));
     }
 
+    public Lobby getLobbyByUser(User user) {
+        return lobbyRepo.findByUser(user)
+                .orElseThrow(() -> new NoResultException
+                        ("User %s is not assigned to any lobby.".formatted(user)));
+    }
+
     public void assignUserToLobby(User user, Long lobbyId) {
         Lobby lobby = new Lobby(
                 lobbyId,

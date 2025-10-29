@@ -1,6 +1,10 @@
 package com.sashaprylutskyy.squidgamems.model.dto.user;
 
+import com.sashaprylutskyy.squidgamems.model.enums.Role;
 import com.sashaprylutskyy.squidgamems.model.enums.Sex;
+import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.*;
 
 import java.util.Date;
@@ -34,8 +38,9 @@ public class UserRequestDTO {
 
     private Long balance;
 
-    @NotNull(message = "Role is required")
-    private Long roleId;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     public UserRequestDTO() {
     }
@@ -104,26 +109,11 @@ public class UserRequestDTO {
         this.balance = balance;
     }
 
-    public Long getRoleId() {
-        return roleId;
+    public Role getRole() {
+        return role;
     }
 
-    public void setRoleId(Long roleId) {
-        this.roleId = roleId;
+    public void setRole(Role role) {
+        this.role = role;
     }
-
-    @Override
-    public String toString() {
-        return "UserRequestDTO{" +
-                "email='" + email + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", profilePhoto='" + profilePhoto + '\'' +
-                ", sex=" + sex +
-                ", birthday=" + birthday +
-                ", balance=" + balance +
-                ", roleId=" + roleId +
-                '}';
-    }
-
 }

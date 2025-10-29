@@ -1,5 +1,6 @@
 package com.sashaprylutskyy.squidgamems.model.dto.user;
 
+import com.sashaprylutskyy.squidgamems.model.enums.Role;
 import com.sashaprylutskyy.squidgamems.model.enums.Sex;
 import com.sashaprylutskyy.squidgamems.model.enums.UserStatus;
 
@@ -13,7 +14,7 @@ public class UserResponseDTO {
     private String lastName;
     private String profilePhoto;
     private Sex sex;
-    private String roleTitle;
+    private Role role;
     private Date birthday;
     private Long balance;
     private UserStatus status;
@@ -70,12 +71,12 @@ public class UserResponseDTO {
         this.sex = sex;
     }
 
-    public String getRoleTitle() {
-        return roleTitle;
+    public Role getRole() {
+        return role;
     }
 
-    public void setRoleTitle(String roleTitle) {
-        this.roleTitle = roleTitle;
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     public Date getBirthday() {

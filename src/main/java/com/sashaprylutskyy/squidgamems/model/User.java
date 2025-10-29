@@ -1,5 +1,6 @@
 package com.sashaprylutskyy.squidgamems.model;
 
+import com.sashaprylutskyy.squidgamems.model.enums.Role;
 import com.sashaprylutskyy.squidgamems.model.enums.Sex;
 import com.sashaprylutskyy.squidgamems.model.enums.UserStatus;
 import jakarta.persistence.*;
@@ -45,8 +46,8 @@ public class User implements UserDetails {
     private Date birthday;
     private Long balance;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id", nullable = false)
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Role role;
 
     @Column(nullable = false)

@@ -1,7 +1,10 @@
 package com.sashaprylutskyy.squidgamems.model.dto.jobOffer;
 
+import com.sashaprylutskyy.squidgamems.model.enums.Role;
+import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 public class JobOfferRequestDTO {
@@ -10,8 +13,9 @@ public class JobOfferRequestDTO {
     @Pattern(regexp = "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$", message = "Invalid email")
     private String email;
 
-    @NotNull(message = "RoleId is missing")
-    private Long roleId;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     public JobOfferRequestDTO() {
 
@@ -21,7 +25,7 @@ public class JobOfferRequestDTO {
         return email;
     }
 
-    public Long getRoleId() {
-        return roleId;
+    public Role getRole() {
+        return role;
     }
 }

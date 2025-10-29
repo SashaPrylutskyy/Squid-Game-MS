@@ -1,6 +1,6 @@
 package com.sashaprylutskyy.squidgamems.model.dto.jobOffer;
 
-import com.sashaprylutskyy.squidgamems.model.Role;
+import com.sashaprylutskyy.squidgamems.model.enums.Role;
 import com.sashaprylutskyy.squidgamems.model.dto.user.UserSummaryDTO;
 import com.sashaprylutskyy.squidgamems.model.enums.JobOfferStatus;
 
