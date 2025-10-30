@@ -2,8 +2,6 @@ package com.sashaprylutskyy.squidgamems.service;
 
 import com.sashaprylutskyy.squidgamems.model.RefCode;
 import com.sashaprylutskyy.squidgamems.model.User;
-import com.sashaprylutskyy.squidgamems.model.dto.refCode.RefCodeSummaryDTO;
-import com.sashaprylutskyy.squidgamems.model.mapper.RefCodeMapper;
 import com.sashaprylutskyy.squidgamems.repository.RefCodeRepository;
 import com.sashaprylutskyy.squidgamems.util.PasswordGenerator;
 import jakarta.persistence.NoResultException;

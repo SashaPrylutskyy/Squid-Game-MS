@@ -1,6 +1,7 @@
 package com.sashaprylutskyy.squidgamems.controller;
 
 import com.sashaprylutskyy.squidgamems.model.dto.user.*;
+import com.sashaprylutskyy.squidgamems.service.UserRegistrationService;
 import com.sashaprylutskyy.squidgamems.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,14 +16,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final UserService userService;
+    private final UserRegistrationService userRegistrationService;
 
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService, UserRegistrationService userRegistrationService) {
         this.userService = userService;
+        this.userRegistrationService = userRegistrationService;
     }
 
     @PostMapping("/register")
     public ResponseEntity<UserResponseDTO> createUser(@Validated @RequestBody UserRequestDTO dto) {
-        UserResponseDTO userResponse = userService.registerHOSTorVIP(dto);
+        UserResponseDTO userResponse = userRegistrationService.registerHOSTorVIP(dto);
         return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
     }
 
@@ -34,7 +37,7 @@ public class AuthController {
 
     @PostMapping("/join")
     public ResponseEntity<UserSummaryDTO> joinAGame(@RequestBody @Validated UserRequestPlayerDTO dto) {
-        UserSummaryDTO player = userService.registerPlayer(dto);
+        UserSummaryDTO player = userRegistrationService.registerPlayer(dto);
         return new ResponseEntity<>(player, HttpStatus.CREATED);
     }
 }

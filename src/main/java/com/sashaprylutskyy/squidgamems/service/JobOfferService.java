@@ -1,7 +1,7 @@
 package com.sashaprylutskyy.squidgamems.service;
 
+import com.sashaprylutskyy.squidgamems.model.Assignment;
 import com.sashaprylutskyy.squidgamems.model.JobOffer;
-import com.sashaprylutskyy.squidgamems.model.Lobby;
 import com.sashaprylutskyy.squidgamems.model.enums.Role;
 import com.sashaprylutskyy.squidgamems.model.User;
 import com.sashaprylutskyy.squidgamems.model.dto.jobOffer.JobOfferRequestDTO;
@@ -27,19 +27,19 @@ public class JobOfferService {
     private final JobOfferRepository jobOfferRepo;
     private final UserService userService;
     private final JobOfferMapper jobOfferMapper;
-    private final LobbyService lobbyService;
     private final RefCodeService refCodeService;
     private final UserMapper userMapper;
+    private final AssignmentService assignmentService;
 
     public JobOfferService(JobOfferRepository jobOfferRepo, UserService userService,
-                           JobOfferMapper jobOfferMapper, LobbyService lobbyService,
-                           RefCodeService refCodeService, UserMapper userMapper) {
+                           JobOfferMapper jobOfferMapper,
+                           RefCodeService refCodeService, UserMapper userMapper, AssignmentService assignmentService) {
         this.jobOfferRepo = jobOfferRepo;
         this.userService = userService;
         this.jobOfferMapper = jobOfferMapper;
-        this.lobbyService = lobbyService;
         this.refCodeService = refCodeService;
         this.userMapper = userMapper;
+        this.assignmentService = assignmentService;
     }
 
     public JobOffer getOfferByToken(UUID token) {
@@ -51,7 +51,7 @@ public class JobOfferService {
     public JobOfferResponseDTO makeJobOffer(JobOfferRequestDTO dto) {
         User principal = userService.getPrincipal();
         Role role = dto.getRole();
-        Lobby currentLobby = lobbyService.getLobbyByUser(principal);
+        Assignment currentLobby = assignmentService.getAssignment_Lobby_byUser(principal);
 
         try {
             User user = userService.getUserByEmail(dto.getEmail());
@@ -65,7 +65,7 @@ public class JobOfferService {
         }
 
         JobOffer jobOffer = new JobOffer(
-                currentLobby.getLobbyId(),
+                currentLobby.getEnvId(),
                 principal,
                 role,
                 dto.getEmail(),
@@ -89,7 +89,7 @@ public class JobOfferService {
 
         User employee = userService.createUserFromData(userDTO);
 
-        lobbyService.assignUserToLobby(employee, offer.getLobbyId());
+        assignmentService.assignUserToLobby(employee, offer.getLobbyId());
 
         offer.setOfferStatus(JobOfferStatus.ACCEPTED);
         offer.setUpdatedAt(System.currentTimeMillis());

@@ -1,10 +1,13 @@
 package com.sashaprylutskyy.squidgamems.service;
 
-import com.sashaprylutskyy.squidgamems.model.Lobby;
+import com.sashaprylutskyy.squidgamems.model.Assignment;
 import com.sashaprylutskyy.squidgamems.model.RefCode;
 import com.sashaprylutskyy.squidgamems.model.User;
+import com.sashaprylutskyy.squidgamems.model.dto.assignment.AssignmentRequestPlayersDTO;
+import com.sashaprylutskyy.squidgamems.model.dto.assignment.AssignmentResponsePlayersDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.refCode.RefCodeSummaryDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.user.*;
+import com.sashaprylutskyy.squidgamems.model.enums.Env;
 import com.sashaprylutskyy.squidgamems.model.enums.Role;
 import com.sashaprylutskyy.squidgamems.model.enums.UserStatus;
 import com.sashaprylutskyy.squidgamems.model.mapper.RefCodeMapper;
@@ -21,6 +24,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 @Service
 public class UserService {
 
@@ -28,24 +35,24 @@ public class UserService {
     private final JwtService jwtService;
     private final PasswordEncoder encoder;
     private final UserMapper userMapper;
-    private final LobbyService lobbyService;
     private final RefCodeService refCodeService;
     private final RefCodeMapper refCodeMapper;
     private final RecruitmentLogService recruitmentLogService;
+    private final AssignmentService assignmentService;
 
 
     public UserService(UserRepository userRepo, JwtService jwtService,
                        PasswordEncoder encoder, UserMapper userMapper,
-                       LobbyService lobbyService, RefCodeService refCodeService,
-                       RefCodeMapper refCodeMapper, RecruitmentLogService recruitmentLogService) {
+                       RefCodeService refCodeService, RefCodeMapper refCodeMapper,
+                       RecruitmentLogService recruitmentLogService, AssignmentService assignmentService) {
         this.userRepo = userRepo;
         this.jwtService = jwtService;
         this.encoder = encoder;
         this.userMapper = userMapper;
-        this.lobbyService = lobbyService;
         this.refCodeService = refCodeService;
         this.refCodeMapper = refCodeMapper;
         this.recruitmentLogService = recruitmentLogService;
+        this.assignmentService = assignmentService;
     }
 
     public User getPrincipal() {
@@ -66,39 +73,6 @@ public class UserService {
     public User getUserById(Long id) {
         return userRepo.findUserById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User No.%d not found".formatted(id)));
-    }
-
-    @Transactional
-    public UserResponseDTO registerHOSTorVIP(UserRequestDTO dto) {
-        if (dto.getRole() != Role.HOST && dto.getRole() != Role.VIP) {
-            throw new RuntimeException("You're able to register an account with either HOST or VIP role.");
-        }
-
-        User user = createUserFromData(dto);
-
-        if (user.getRole() == Role.HOST) {
-            lobbyService.assignUserToLobby(user, user.getId());
-        }
-        return userMapper.toResponseDTO(user);
-    }
-
-    @Transactional
-    public UserSummaryDTO registerPlayer(UserRequestPlayerDTO dto) {
-        RefCode refCode = refCodeService.getRefCode(dto.getRefCode());
-        User salesman = refCode.getUser();
-
-        Lobby lobby = lobbyService.getLobbyByUser(salesman);
-        Long lobbyId = lobby.getLobbyId();
-
-        UserRequestDTO playerDTO = userMapper.toUserRequestDTO(dto);
-        playerDTO.setRole(Role.PLAYER);
-
-        User player = createUserFromData(playerDTO);
-
-        recruitmentLogService.addLog(player, refCode);
-        lobbyService.assignUserToLobby(player, lobbyId);
-
-        return userMapper.toSummaryDTO(player);
     }
 
     @Transactional
@@ -131,4 +105,32 @@ public class UserService {
         }
         throw new RuntimeException("Invalid credentials");
     }
+
+    @Transactional
+    public AssignmentResponsePlayersDTO assignPlayersToCompetition(AssignmentRequestPlayersDTO dto) {
+        User principal = getPrincipal();
+        Long competitionId = dto.getCompetitionId(); //todo переконатися, що competition існує
+
+        List<Long> playerIds = dto.getPlayerIds();
+        List<User> playerEntities = new ArrayList<>();
+
+        for (Long id : playerIds) {
+            try {
+                User player = getUserById(id);
+                playerEntities.add(player);
+            } catch (UsernameNotFoundException ignored) {}
+        }
+
+        return assignmentService.assignPlayersToCompetition(competitionId, playerEntities, principal);
+    }
+
+    @Transactional
+    public AssignmentResponsePlayersDTO removePlayersFromCompetition(AssignmentRequestPlayersDTO dto) {
+        User principal = getPrincipal();
+        Long competitionId = dto.getCompetitionId(); //todo переконатися, що competition існує
+        List<Long> playerIds = dto.getPlayerIds();
+
+        return assignmentService.removePlayersFromCompetition(competitionId, playerIds, principal);
+    }
+
 }

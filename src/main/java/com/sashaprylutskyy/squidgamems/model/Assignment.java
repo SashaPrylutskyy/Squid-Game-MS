@@ -1,5 +1,6 @@
 package com.sashaprylutskyy.squidgamems.model;
 
+import com.sashaprylutskyy.squidgamems.model.enums.Env;
 import jakarta.persistence.*;
 
 @Entity
@@ -11,14 +12,18 @@ public class Assignment {
     private Long id;
 
     @Column(nullable = false)
-    private Long competitionId;
+    @Enumerated(EnumType.STRING)
+    private Env env;
+
+    @Column(nullable = false)
+    private Long envId;
 
     @ManyToOne
-    @JoinColumn(name = "player_id", nullable = false)
-    private User player;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @ManyToOne
-    @JoinColumn(name = "assigned_by", nullable = false)
+    @JoinColumn(name = "assigned_by")
     private User assignedBy;
 
     @Column(nullable = false)
@@ -28,9 +33,10 @@ public class Assignment {
 
     }
 
-    public Assignment(Long competitionId, User player, User assignedBy, Long assignedAt) {
-        this.competitionId = competitionId;
-        this.player = player;
+    public Assignment(Env env, Long envId, User user, User assignedBy, Long assignedAt) {
+        this.env = env;
+        this.envId = envId;
+        this.user = user;
         this.assignedBy = assignedBy;
         this.assignedAt = assignedAt;
     }
@@ -39,20 +45,32 @@ public class Assignment {
         return id;
     }
 
-    public Long getCompetitionId() {
-        return competitionId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setCompetitionId(Long competitionId) {
-        this.competitionId = competitionId;
+    public Env getEnv() {
+        return env;
     }
 
-    public User getPlayer() {
-        return player;
+    public void setEnv(Env env) {
+        this.env = env;
     }
 
-    public void setPlayer(User player) {
-        this.player = player;
+    public Long getEnvId() {
+        return envId;
+    }
+
+    public void setEnvId(Long envId) {
+        this.envId = envId;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public User getAssignedBy() {

@@ -5,8 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
-public class AssignmentRequestDTO {
-
+public class AssignmentRequestPlayersDTO {
     @NotNull
     private Long competitionId;
 
@@ -14,7 +13,7 @@ public class AssignmentRequestDTO {
     @NotEmpty
     private List<Long> playerIds;
 
-    public AssignmentRequestDTO() {
+    public AssignmentRequestPlayersDTO() {
 
     }
 

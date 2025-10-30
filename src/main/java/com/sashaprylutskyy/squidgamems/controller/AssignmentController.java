@@ -1,8 +1,9 @@
 package com.sashaprylutskyy.squidgamems.controller;
 
-import com.sashaprylutskyy.squidgamems.model.dto.assignment.AssignmentRequestDTO;
-import com.sashaprylutskyy.squidgamems.model.dto.assignment.AssignmentResponseDTO;
+import com.sashaprylutskyy.squidgamems.model.dto.assignment.AssignmentRequestPlayersDTO;
+import com.sashaprylutskyy.squidgamems.model.dto.assignment.AssignmentResponsePlayersDTO;
 import com.sashaprylutskyy.squidgamems.service.AssignmentService;
+import com.sashaprylutskyy.squidgamems.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -14,22 +15,24 @@ import org.springframework.web.bind.annotation.*;
 public class AssignmentController {
 
     private final AssignmentService assignmentService;
+    private final UserService userService;
 
-    public AssignmentController(AssignmentService assignmentService) {
+    public AssignmentController(AssignmentService assignmentService, UserService userService) {
         this.assignmentService = assignmentService;
+        this.userService = userService;
     }
 
     @PostMapping
     @Secured({"ROLE_HOST", "ROLE_FRONTMAN"})
-    public ResponseEntity<AssignmentResponseDTO> assignPlayersToCompetition(@RequestBody @Validated AssignmentRequestDTO dto) {
-        AssignmentResponseDTO assignment = assignmentService.assignPlayersToCompetition(dto);
+    public ResponseEntity<AssignmentResponsePlayersDTO> assignPlayersToCompetition(@RequestBody @Validated AssignmentRequestPlayersDTO dto) {
+        AssignmentResponsePlayersDTO assignment = userService.assignPlayersToCompetition(dto);
         return new ResponseEntity<>(assignment, HttpStatus.CREATED);
     }
 
     @DeleteMapping
     @Secured({"ROLE_HOST", "ROLE_FRONTMAN"})
-    public ResponseEntity<AssignmentResponseDTO> removePlayersFromCompetition(@RequestBody @Validated AssignmentRequestDTO dto) {
-        AssignmentResponseDTO assignment = assignmentService.removePlayersFromCompetition(dto);
+    public ResponseEntity<AssignmentResponsePlayersDTO> removePlayersFromCompetition(@RequestBody @Validated AssignmentRequestPlayersDTO dto) {
+        AssignmentResponsePlayersDTO assignment = userService.removePlayersFromCompetition(dto);
         return new ResponseEntity<>(assignment, HttpStatus.OK);
     }
 

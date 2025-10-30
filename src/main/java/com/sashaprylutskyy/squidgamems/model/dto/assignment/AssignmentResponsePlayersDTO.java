@@ -4,14 +4,14 @@ import com.sashaprylutskyy.squidgamems.model.dto.user.UserSummaryDTO;
 
 import java.util.List;
 
-public class AssignmentResponseDTO {
+public class AssignmentResponsePlayersDTO {
 
     private Long competitionId;
     private List<UserSummaryDTO> players;
     private UserSummaryDTO processedBy;
     private Long processedAt;
 
-    public AssignmentResponseDTO() {
+    public AssignmentResponsePlayersDTO() {
 
     }
 
