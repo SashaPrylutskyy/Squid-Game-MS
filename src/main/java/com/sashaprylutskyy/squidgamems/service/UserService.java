@@ -9,7 +9,6 @@ import com.sashaprylutskyy.squidgamems.model.dto.assignment.AssignmentResponsePl
 import com.sashaprylutskyy.squidgamems.model.dto.refCode.RefCodeSummaryDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.user.*;
 import com.sashaprylutskyy.squidgamems.model.enums.Env;
-import com.sashaprylutskyy.squidgamems.model.enums.Role;
 import com.sashaprylutskyy.squidgamems.model.enums.UserStatus;
 import com.sashaprylutskyy.squidgamems.model.mapper.RefCodeMapper;
 import com.sashaprylutskyy.squidgamems.model.mapper.UserMapper;
@@ -26,7 +25,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 @Service
@@ -108,7 +106,7 @@ public class UserService {
     }
 
     @Transactional
-    public AssignmentResponsePlayersDTO assignPlayersToCompetition(AssignmentRequestPlayersDTO dto) {
+    public AssignmentResponsePlayersDTO assignPlayersToFromCompetition(boolean assign, AssignmentRequestPlayersDTO dto) {
         User principal = getPrincipal();
         Long lobbyId = assignmentService.getAssignment_Lobby_byUser(principal).getEnvId();
         Competition competition = competitionService.getById(dto.getCompetitionId());
@@ -124,35 +122,14 @@ public class UserService {
                 if (assignment != null) {
                     playerEntities.add(assignment.getUser());
                 }
-            } catch (UsernameNotFoundException ignored) {
-            }
+            } catch (UsernameNotFoundException ignored) {}
         }
 
-        return assignmentService.assignPlayersToCompetition(competitionId, playerEntities, principal);
-    }
-
-    @Transactional
-    public AssignmentResponsePlayersDTO removePlayersFromCompetition(AssignmentRequestPlayersDTO dto) {
-        User principal = getPrincipal();
-        Long lobbyId = assignmentService.getAssignment_Lobby_byUser(principal).getEnvId();
-        Competition competition = competitionService.getById(dto.getCompetitionId());
-        Long competitionId = competition.getId();
-
-        List<Long> playerIds = dto.getPlayerIds();
-        List<User> playerEntities = new ArrayList<>();
-
-        for (Long playerId : playerIds) {
-            try {
-                Assignment assignment = assignmentService
-                        .getAssignment_Env_byEnvIdAndUserId(Env.LOBBY, lobbyId, playerId);
-                if (assignment != null) {
-                    playerEntities.add(assignment.getUser());
-                }
-            } catch (UsernameNotFoundException ignored) {
-            }
+        if (assign) {
+            return assignmentService.assignPlayersToCompetition(competitionId, playerEntities, principal);
+        } else {
+            return assignmentService.removePlayersFromCompetition(competitionId, playerEntities, principal);
         }
-
-        return assignmentService.removePlayersFromCompetition(competitionId, playerEntities, principal);
     }
 
 }
