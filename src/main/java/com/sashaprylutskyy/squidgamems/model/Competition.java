@@ -3,15 +3,14 @@ package com.sashaprylutskyy.squidgamems.model;
 import com.sashaprylutskyy.squidgamems.model.enums.CompetitionStatus;
 import jakarta.persistence.*;
 
-import java.util.UUID;
 
 @Entity
 @Table(name = "competitions")
 public class Competition {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID uuid;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private String title;
     private Long lobbyId;
@@ -44,12 +43,12 @@ public class Competition {
         this.updatedAt = updatedAt;
     }
 
-    public UUID getUuid() {
-        return uuid;
+    public Long getId() {
+        return id;
     }
 
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getTitle() {

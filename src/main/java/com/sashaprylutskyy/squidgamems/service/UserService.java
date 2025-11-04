@@ -1,6 +1,7 @@
 package com.sashaprylutskyy.squidgamems.service;
 
 import com.sashaprylutskyy.squidgamems.model.Assignment;
+import com.sashaprylutskyy.squidgamems.model.Competition;
 import com.sashaprylutskyy.squidgamems.model.RefCode;
 import com.sashaprylutskyy.squidgamems.model.User;
 import com.sashaprylutskyy.squidgamems.model.dto.assignment.AssignmentRequestPlayersDTO;
@@ -39,12 +40,13 @@ public class UserService {
     private final RefCodeMapper refCodeMapper;
     private final RecruitmentLogService recruitmentLogService;
     private final AssignmentService assignmentService;
+    private final CompetitionService competitionService;
 
 
     public UserService(UserRepository userRepo, JwtService jwtService,
                        PasswordEncoder encoder, UserMapper userMapper,
                        RefCodeService refCodeService, RefCodeMapper refCodeMapper,
-                       RecruitmentLogService recruitmentLogService, AssignmentService assignmentService) {
+                       RecruitmentLogService recruitmentLogService, AssignmentService assignmentService, CompetitionService competitionService) {
         this.userRepo = userRepo;
         this.jwtService = jwtService;
         this.encoder = encoder;
@@ -53,6 +55,7 @@ public class UserService {
         this.refCodeMapper = refCodeMapper;
         this.recruitmentLogService = recruitmentLogService;
         this.assignmentService = assignmentService;
+        this.competitionService = competitionService;
     }
 
     public User getPrincipal() {
@@ -109,7 +112,8 @@ public class UserService {
     @Transactional
     public AssignmentResponsePlayersDTO assignPlayersToCompetition(AssignmentRequestPlayersDTO dto) {
         User principal = getPrincipal();
-        Long competitionId = dto.getCompetitionId(); //todo переконатися, що competition існує
+        Competition competition = competitionService.getById(dto.getCompetitionId());
+        Long competitionId = competition.getId();
 
         List<Long> playerIds = dto.getPlayerIds();
         List<User> playerEntities = new ArrayList<>();
@@ -127,7 +131,8 @@ public class UserService {
     @Transactional
     public AssignmentResponsePlayersDTO removePlayersFromCompetition(AssignmentRequestPlayersDTO dto) {
         User principal = getPrincipal();
-        Long competitionId = dto.getCompetitionId(); //todo переконатися, що competition існує
+        Competition competition = competitionService.getById(dto.getCompetitionId());
+        Long competitionId = competition.getId();
         List<Long> playerIds = dto.getPlayerIds();
 
         return assignmentService.removePlayersFromCompetition(competitionId, playerIds, principal);
