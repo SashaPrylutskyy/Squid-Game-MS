@@ -2,7 +2,6 @@ package com.sashaprylutskyy.squidgamems.service;
 
 import com.sashaprylutskyy.squidgamems.model.Assignment;
 import com.sashaprylutskyy.squidgamems.model.User;
-import com.sashaprylutskyy.squidgamems.model.dto.assignment.AssignmentRequestPlayersDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.assignment.AssignmentResponsePlayersDTO;
 import com.sashaprylutskyy.squidgamems.model.enums.Env;
 import com.sashaprylutskyy.squidgamems.model.mapper.UserMapper;
@@ -81,25 +80,25 @@ public class AssignmentService {
 
     @Transactional
     public AssignmentResponsePlayersDTO removePlayersFromCompetition(
-            Long competitionId, List<Long> playerIds, User principal) {
+            Long competitionId, List<User> playerEntities, User principal) {
 
         Long now = System.currentTimeMillis();
 
         List<Assignment> assignmentsToDelete = new ArrayList<>();
-        List<User> playerEntities = new ArrayList<>();
+        List<User> playersToDelete = new ArrayList<>();
 
-        for (Long playerId : playerIds) {
+        for (User player : playerEntities) {
             Assignment assignment = getAssignment_Env_byEnvIdAndUserId(
-                    Env.COMPETITION, competitionId, playerId
+                    Env.COMPETITION, competitionId, player.getId()
             );
             if (assignment != null) {
                 assignmentsToDelete.add(assignment);
-                playerEntities.add(assignment.getUser());
+                playersToDelete.add(assignment.getUser());
             }
         }
         assignmentRepo.deleteAll(assignmentsToDelete);
 
-        return toResponseDTO(principal, competitionId, now, playerEntities);
+        return toResponseDTO(principal, competitionId, now, playersToDelete);
     }
 
     private AssignmentResponsePlayersDTO toResponseDTO(

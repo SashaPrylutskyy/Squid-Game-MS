@@ -38,7 +38,6 @@ public class UserService {
     private final UserMapper userMapper;
     private final RefCodeService refCodeService;
     private final RefCodeMapper refCodeMapper;
-    private final RecruitmentLogService recruitmentLogService;
     private final AssignmentService assignmentService;
     private final CompetitionService competitionService;
 
@@ -46,14 +45,13 @@ public class UserService {
     public UserService(UserRepository userRepo, JwtService jwtService,
                        PasswordEncoder encoder, UserMapper userMapper,
                        RefCodeService refCodeService, RefCodeMapper refCodeMapper,
-                       RecruitmentLogService recruitmentLogService, AssignmentService assignmentService, CompetitionService competitionService) {
+                       AssignmentService assignmentService, CompetitionService competitionService) {
         this.userRepo = userRepo;
         this.jwtService = jwtService;
         this.encoder = encoder;
         this.userMapper = userMapper;
         this.refCodeService = refCodeService;
         this.refCodeMapper = refCodeMapper;
-        this.recruitmentLogService = recruitmentLogService;
         this.assignmentService = assignmentService;
         this.competitionService = competitionService;
     }
@@ -112,17 +110,22 @@ public class UserService {
     @Transactional
     public AssignmentResponsePlayersDTO assignPlayersToCompetition(AssignmentRequestPlayersDTO dto) {
         User principal = getPrincipal();
+        Long lobbyId = assignmentService.getAssignment_Lobby_byUser(principal).getEnvId();
         Competition competition = competitionService.getById(dto.getCompetitionId());
         Long competitionId = competition.getId();
 
         List<Long> playerIds = dto.getPlayerIds();
         List<User> playerEntities = new ArrayList<>();
 
-        for (Long id : playerIds) {
+        for (Long playerId : playerIds) {
             try {
-                User player = getUserById(id);
-                playerEntities.add(player);
-            } catch (UsernameNotFoundException ignored) {}
+                Assignment assignment = assignmentService
+                        .getAssignment_Env_byEnvIdAndUserId(Env.LOBBY, lobbyId, playerId);
+                if (assignment != null) {
+                    playerEntities.add(assignment.getUser());
+                }
+            } catch (UsernameNotFoundException ignored) {
+            }
         }
 
         return assignmentService.assignPlayersToCompetition(competitionId, playerEntities, principal);
@@ -131,11 +134,25 @@ public class UserService {
     @Transactional
     public AssignmentResponsePlayersDTO removePlayersFromCompetition(AssignmentRequestPlayersDTO dto) {
         User principal = getPrincipal();
+        Long lobbyId = assignmentService.getAssignment_Lobby_byUser(principal).getEnvId();
         Competition competition = competitionService.getById(dto.getCompetitionId());
         Long competitionId = competition.getId();
-        List<Long> playerIds = dto.getPlayerIds();
 
-        return assignmentService.removePlayersFromCompetition(competitionId, playerIds, principal);
+        List<Long> playerIds = dto.getPlayerIds();
+        List<User> playerEntities = new ArrayList<>();
+
+        for (Long playerId : playerIds) {
+            try {
+                Assignment assignment = assignmentService
+                        .getAssignment_Env_byEnvIdAndUserId(Env.LOBBY, lobbyId, playerId);
+                if (assignment != null) {
+                    playerEntities.add(assignment.getUser());
+                }
+            } catch (UsernameNotFoundException ignored) {
+            }
+        }
+
+        return assignmentService.removePlayersFromCompetition(competitionId, playerEntities, principal);
     }
 
 }
