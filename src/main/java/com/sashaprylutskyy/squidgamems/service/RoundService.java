@@ -22,7 +22,7 @@ public class RoundService {
     }
 
     @Transactional
-    public RoundResponseDTO createRounds(RoundRequestDTO dto) {
+    public RoundResponseDTO addRounds(RoundRequestDTO dto) {
         List<Round> rounds = roundMapper.toEntityList(dto);
         roundRepo.saveAll(rounds);
 

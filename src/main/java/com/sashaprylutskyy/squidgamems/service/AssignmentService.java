@@ -27,25 +27,25 @@ public class AssignmentService {
         this.userMapper = userMapper;
     }
 
-    public Assignment getAssignment_Env_byEnvIdAndUserId(Env env, Long envId, Long userId) {
-        return assignmentRepo.findByEnvAndEnvIdAndUserId(env, envId, userId);
+    public Assignment getAssignment_Env(Env env, Long envId, Long userId) {
+        return assignmentRepo.findBy(env, envId, userId);
     }
 
-    public Assignment getAssignment_Lobby_byUser(User user) {
+    public Assignment getAssignment_Lobby(User user) {
         return assignmentRepo.findAssignmentByEnvAndUser(Env.LOBBY, user)
                 .orElseThrow(() -> new NoResultException
                         ("User %s is not assigned to any lobby.".formatted(user.getEmail())));
     }
 
-    public List<Assignment> getAssignmentList(Env env, Long envId) {
+    public List<Assignment> getListOfAssignments(Env env, Long envId) {
         return assignmentRepo.findAssignments(env, envId);
     }
 
-    public List<Assignment> getAssignmentList(Env env, Long envId, UserStatus status) {
+    public List<Assignment> getListOfAssignments(Env env, Long envId, UserStatus status) {
         return assignmentRepo.findAssignments(env, envId, status);
     }
 
-    public List<Assignment> getAssignmentList(Env env, Long envId, UserStatus status, Sex sex) {
+    public List<Assignment> getListOfAssignments(Env env, Long envId, UserStatus status, Sex sex) {
         return assignmentRepo.findAssignments(env, envId, status, sex);
     }
 
@@ -70,7 +70,7 @@ public class AssignmentService {
         List<User> playerEntities = new ArrayList<>();
 
         for (User player : players) {
-            Assignment assignment = getAssignment_Env_byEnvIdAndUserId(
+            Assignment assignment = getAssignment_Env(
                     Env.COMPETITION, competitionId, player.getId()
             );
             if (assignment != null) {
@@ -102,7 +102,7 @@ public class AssignmentService {
         List<User> playersToDelete = new ArrayList<>();
 
         for (User player : playerEntities) {
-            Assignment assignment = getAssignment_Env_byEnvIdAndUserId(
+            Assignment assignment = getAssignment_Env(
                     Env.COMPETITION, competitionId, player.getId()
             );
             if (assignment != null) {

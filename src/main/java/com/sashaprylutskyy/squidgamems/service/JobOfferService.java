@@ -32,8 +32,8 @@ public class JobOfferService {
     private final AssignmentService assignmentService;
 
     public JobOfferService(JobOfferRepository jobOfferRepo, UserService userService,
-                           JobOfferMapper jobOfferMapper,
-                           RefCodeService refCodeService, UserMapper userMapper, AssignmentService assignmentService) {
+                           JobOfferMapper jobOfferMapper, RefCodeService refCodeService,
+                           UserMapper userMapper, AssignmentService assignmentService) {
         this.jobOfferRepo = jobOfferRepo;
         this.userService = userService;
         this.jobOfferMapper = jobOfferMapper;
@@ -42,7 +42,7 @@ public class JobOfferService {
         this.assignmentService = assignmentService;
     }
 
-    public JobOffer getOfferByToken(UUID token) {
+    public JobOffer getByToken(UUID token) {
         return jobOfferRepo.findByToken(token)
                 .orElseThrow(() -> new NoResultException("Job offer %s isn't found".formatted(token)));
     }
@@ -51,7 +51,7 @@ public class JobOfferService {
     public JobOfferResponseDTO makeJobOffer(JobOfferRequestDTO dto) {
         User principal = userService.getPrincipal();
         Role role = dto.getRole();
-        Assignment currentLobby = assignmentService.getAssignment_Lobby_byUser(principal);
+        Assignment currentLobby = assignmentService.getAssignment_Lobby(principal);
 
         try {
             User user = userService.getUserByEmail(dto.getEmail());
@@ -78,7 +78,7 @@ public class JobOfferService {
 
     @Transactional
     public JobOfferSummaryDTO acceptJobOffer(UUID token, JobOfferRequestUserDTO dto) {
-        JobOffer offer = getOfferByToken(token);
+        JobOffer offer = getByToken(token);
 
         if (offer.getOfferStatus() != JobOfferStatus.AWAITING) {
             throw new IllegalStateException("Job offer status is" + offer.getOfferStatus().name());

@@ -22,14 +22,14 @@ public class AssignmentController {
     @PostMapping
     @Secured({"ROLE_HOST", "ROLE_FRONTMAN"})
     public ResponseEntity<AssignmentResponsePlayersDTO> assignPlayersToCompetition(@RequestBody @Validated AssignmentRequestPlayersDTO dto) {
-        AssignmentResponsePlayersDTO assignment = userService.assignPlayersToFromCompetition(true, dto);
+        AssignmentResponsePlayersDTO assignment = userService.assignPlayers_Competition(true, dto);
         return new ResponseEntity<>(assignment, HttpStatus.CREATED);
     }
 
     @DeleteMapping
     @Secured({"ROLE_HOST", "ROLE_FRONTMAN"})
     public ResponseEntity<AssignmentResponsePlayersDTO> removePlayersFromCompetition(@RequestBody @Validated AssignmentRequestPlayersDTO dto) {
-        AssignmentResponsePlayersDTO assignment = userService.assignPlayersToFromCompetition(false, dto);
+        AssignmentResponsePlayersDTO assignment = userService.assignPlayers_Competition(false, dto);
         return new ResponseEntity<>(assignment, HttpStatus.OK);
     }
 

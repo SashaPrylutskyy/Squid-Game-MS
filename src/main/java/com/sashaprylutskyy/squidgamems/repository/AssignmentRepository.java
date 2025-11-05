@@ -18,11 +18,11 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
 
     @Query("""
             SELECT a FROM Assignment a
-            WHERE a.env =:env 
-            AND a.envId =:envId 
+            WHERE a.env =:env
+            AND a.envId =:envId
             AND a.user.id =:userId
             """)
-    Assignment findByEnvAndEnvIdAndUserId(
+    Assignment findBy(
             @Param("env") Env env,
             @Param("envId") Long envId,
             @Param("userId") Long userId

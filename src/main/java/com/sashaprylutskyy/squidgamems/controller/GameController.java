@@ -24,8 +24,8 @@ public class GameController {
 
     @PostMapping
     @Secured({"ROLE_HOST", "ROLE_FRONTMAN"})
-    public ResponseEntity<GameSummaryDTO> addNewToTheList(@Validated @RequestBody GameRequestDTO dto) {
-        GameSummaryDTO game = gameService.addNewToTheList(dto);
+    public ResponseEntity<GameSummaryDTO> create(@Validated @RequestBody GameRequestDTO dto) {
+        GameSummaryDTO game = gameService.create(dto);
         return new ResponseEntity<>(game, HttpStatus.CREATED);
     }
 }

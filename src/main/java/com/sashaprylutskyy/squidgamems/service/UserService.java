@@ -75,27 +75,18 @@ public class UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("User No.%d is not found".formatted(id)));
     }
 
-    public List<UserSummaryDTO> getUserList(Env env, Long envId) {
-        List<Assignment> assignments = assignmentService
-                .getAssignmentList(env, envId);
-
+    public List<UserSummaryDTO> getListOfUsers(Env env, Long envId) {
+        List<Assignment> assignments = assignmentService.getListOfAssignments(env, envId);
         return userMapper.toSummaryDTOList(assignments);
     }
 
-    public List<UserSummaryDTO> getUserList(Env env, Long envId,
-                                            UserStatus userStatus) {
-        List<Assignment> assignments = assignmentService
-                .getAssignmentList(env, envId, userStatus);
-
+    public List<UserSummaryDTO> getListOfUsers(Env env, Long envId, UserStatus userStatus) {
+        List<Assignment> assignments = assignmentService.getListOfAssignments(env, envId, userStatus);
         return userMapper.toSummaryDTOList(assignments);
     }
 
-    public List<UserSummaryDTO> getUserList(Env env, Long envId,
-                                            UserStatus userStatus,
-                                            Sex sex) {
-        List<Assignment> assignments = assignmentService
-                .getAssignmentList(env, envId, userStatus, sex);
-
+    public List<UserSummaryDTO> getListOfUsers(Env env, Long envId, UserStatus userStatus, Sex sex) {
+        List<Assignment> assignments = assignmentService.getListOfAssignments(env, envId, userStatus, sex);
         return userMapper.toSummaryDTOList(assignments);
     }
 
@@ -131,9 +122,9 @@ public class UserService {
     }
 
     @Transactional
-    public AssignmentResponsePlayersDTO assignPlayersToFromCompetition(boolean assign, AssignmentRequestPlayersDTO dto) {
+    public AssignmentResponsePlayersDTO assignPlayers_Competition(boolean assign, AssignmentRequestPlayersDTO dto) {
         User principal = getPrincipal();
-        Long lobbyId = assignmentService.getAssignment_Lobby_byUser(principal).getEnvId();
+        Long lobbyId = assignmentService.getAssignment_Lobby(principal).getEnvId();
         Competition competition = competitionService.getById(dto.getCompetitionId());
         Long competitionId = competition.getId();
 
@@ -143,7 +134,7 @@ public class UserService {
         for (Long playerId : playerIds) {
             try {
                 Assignment assignment = assignmentService
-                        .getAssignment_Env_byEnvIdAndUserId(Env.LOBBY, lobbyId, playerId);
+                        .getAssignment_Env(Env.LOBBY, lobbyId, playerId);
                 if (assignment != null) {
                     playerEntities.add(assignment.getUser());
                 }

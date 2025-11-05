@@ -31,7 +31,7 @@ public class CompetitionService {
 
     @Transactional
     public CompetitionResponseDTO create(String title, User principal) {
-        Assignment lobby = assignmentService.getAssignment_Lobby_byUser(principal);
+        Assignment lobby = assignmentService.getAssignment_Lobby(principal);
         Long now = System.currentTimeMillis();
 
         Competition competition = new Competition(title, lobby.getEnvId(), principal, now);

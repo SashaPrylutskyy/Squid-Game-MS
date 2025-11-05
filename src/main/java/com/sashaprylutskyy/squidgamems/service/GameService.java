@@ -21,7 +21,7 @@ public class GameService {
         this.gameRepo = gameRepo;
     }
 
-    public GameSummaryDTO addNewToTheList(GameRequestDTO dto) {
+    public GameSummaryDTO create(GameRequestDTO dto) {
         User principal = userService.getPrincipal();
         Long now = System.currentTimeMillis();
 

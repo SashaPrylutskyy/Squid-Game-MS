@@ -24,8 +24,8 @@ public class RoundController {
 
     @PostMapping
     @Secured({"ROLE_HOST", "ROLE_FRONTMAN"})
-    public ResponseEntity<RoundResponseDTO> createRounds(@Validated @RequestBody RoundRequestDTO dto) {
-        RoundResponseDTO response = roundService.createRounds(dto);
+    public ResponseEntity<RoundResponseDTO> addRounds(@Validated @RequestBody RoundRequestDTO dto) {
+        RoundResponseDTO response = roundService.addRounds(dto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 }

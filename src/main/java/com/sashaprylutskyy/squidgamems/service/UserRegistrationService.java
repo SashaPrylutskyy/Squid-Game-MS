@@ -21,11 +21,9 @@ public class UserRegistrationService {
     private final RecruitmentLogService recruitmentLogService;
     private final UserMapper userMapper;
 
-    public UserRegistrationService(UserService userService,
-                                   AssignmentService assignmentService,
+    public UserRegistrationService(UserService userService, AssignmentService assignmentService,
                                    RefCodeService refCodeService,
-                                   RecruitmentLogService recruitmentLogService,
-                                   UserMapper userMapper) {
+                                   RecruitmentLogService recruitmentLogService, UserMapper userMapper) {
         this.userService = userService;
         this.assignmentService = assignmentService;
         this.refCodeService = refCodeService;
@@ -38,13 +36,10 @@ public class UserRegistrationService {
         if (dto.getRole() != Role.HOST && dto.getRole() != Role.VIP) {
             throw new RuntimeException("You're able to register an account with either HOST or VIP role.");
         }
-
         User user = userService.createUserFromData(dto);
-
         if (user.getRole() == Role.HOST) {
             assignmentService.assignUserToLobby(user, user.getId());
         }
-
         return userMapper.toResponseDTO(user);
     }
 
@@ -53,7 +48,7 @@ public class UserRegistrationService {
         RefCode refCode = refCodeService.getRefCode(dto.getRefCode());
         User salesman = refCode.getUser();
 
-        Assignment salesmanAssignment = assignmentService.getAssignment_Lobby_byUser(salesman);
+        Assignment salesmanAssignment = assignmentService.getAssignment_Lobby(salesman);
         Long lobbyId = salesmanAssignment.getEnvId();
 
         UserRequestDTO playerDTO = userMapper.toUserRequestDTO(dto);
