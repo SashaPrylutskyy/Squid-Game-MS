@@ -1,6 +1,7 @@
 package com.sashaprylutskyy.squidgamems.controller;
 
 import com.sashaprylutskyy.squidgamems.model.dto.round.RoundRequestDTO;
+import com.sashaprylutskyy.squidgamems.model.dto.round.RoundResponseDTO;
 import com.sashaprylutskyy.squidgamems.service.RoundService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +24,8 @@ public class RoundController {
 
     @PostMapping
     @Secured({"ROLE_HOST", "ROLE_FRONTMAN"})
-    public ResponseEntity<?> createRounds(@Validated @RequestBody RoundRequestDTO dto) {
-        roundService.createRounds(dto);
-        return new ResponseEntity<>("DONE", HttpStatus.CREATED);
+    public ResponseEntity<RoundResponseDTO> createRounds(@Validated @RequestBody RoundRequestDTO dto) {
+        RoundResponseDTO response = roundService.createRounds(dto);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 }

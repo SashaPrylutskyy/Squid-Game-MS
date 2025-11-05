@@ -2,6 +2,7 @@ package com.sashaprylutskyy.squidgamems.model.mapper;
 
 import com.sashaprylutskyy.squidgamems.model.Round;
 import com.sashaprylutskyy.squidgamems.model.dto.round.RoundRequestDTO;
+import com.sashaprylutskyy.squidgamems.model.dto.round.RoundResponseDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.round.RoundSummaryDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -28,5 +29,22 @@ public interface RoundMapper {
                 .stream()
                 .map(dto -> toEntity(request.getCompetitionId(), dto))
                 .toList();
+    }
+
+    @Mappings({
+            @Mapping(target = "gameId", source = "gameId"),
+            @Mapping(target = "roundNumber", source = "roundNumber")
+    })
+    RoundSummaryDTO toSummaryDTO(Round round);
+
+    default RoundResponseDTO toResponseDTO(Long competitionId, List<Round> rounds) {
+        RoundResponseDTO dto = new RoundResponseDTO();
+        dto.setCompetitionId(competitionId);
+        dto.setRoundSummaryDTOs(
+                rounds.stream()
+                        .map(this::toSummaryDTO)
+                        .toList()
+        );
+        return dto;
     }
 }

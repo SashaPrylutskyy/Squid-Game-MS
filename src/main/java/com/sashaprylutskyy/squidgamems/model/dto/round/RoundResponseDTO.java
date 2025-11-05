@@ -1,20 +1,13 @@
 package com.sashaprylutskyy.squidgamems.model.dto.round;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-
 import java.util.List;
 
-public class RoundRequestDTO {
+public class RoundResponseDTO {
 
-    @NotNull
     private Long competitionId;
-
-    @NotNull
-    @Size(min = 1, message = "At least one round must be provided")
     private List<RoundSummaryDTO> roundSummaryDTOs;
 
-    public RoundRequestDTO() {
+    public RoundResponseDTO() {
 
     }
 

@@ -2,6 +2,7 @@ package com.sashaprylutskyy.squidgamems.service;
 
 import com.sashaprylutskyy.squidgamems.model.Round;
 import com.sashaprylutskyy.squidgamems.model.dto.round.RoundRequestDTO;
+import com.sashaprylutskyy.squidgamems.model.dto.round.RoundResponseDTO;
 import com.sashaprylutskyy.squidgamems.model.mapper.RoundMapper;
 import com.sashaprylutskyy.squidgamems.repository.RoundRepo;
 import jakarta.transaction.Transactional;
@@ -21,8 +22,10 @@ public class RoundService {
     }
 
     @Transactional
-    public void createRounds(RoundRequestDTO request) {
-        List<Round> rounds = roundMapper.toEntityList(request);
+    public RoundResponseDTO createRounds(RoundRequestDTO dto) {
+        List<Round> rounds = roundMapper.toEntityList(dto);
         roundRepo.saveAll(rounds);
+
+        return roundMapper.toResponseDTO(dto.getCompetitionId(), rounds);
     }
 }
