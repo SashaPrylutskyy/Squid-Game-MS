@@ -1,7 +1,7 @@
 package com.sashaprylutskyy.squidgamems.model.dto.competition;
 
 import com.sashaprylutskyy.squidgamems.model.dto.user.UserSummaryDTO;
-import com.sashaprylutskyy.squidgamems.model.enums.CompetitionStatus;
+import com.sashaprylutskyy.squidgamems.model.enums.CompetitionRoundStatus;
 
 import java.util.UUID;
 
@@ -10,7 +10,7 @@ public class CompetitionResponseDTO {
     private UUID uuid;
     private String title;
     private Long lobbyId;
-    private CompetitionStatus status;
+    private CompetitionRoundStatus status;
     private UserSummaryDTO createdBy;
     private Long createdAt;
     private Long updatedAt;
@@ -43,11 +43,11 @@ public class CompetitionResponseDTO {
         this.lobbyId = lobbyId;
     }
 
-    public CompetitionStatus getStatus() {
+    public CompetitionRoundStatus getStatus() {
         return status;
     }
 
-    public void setStatus(CompetitionStatus status) {
+    public void setStatus(CompetitionRoundStatus status) {
         this.status = status;
     }
 

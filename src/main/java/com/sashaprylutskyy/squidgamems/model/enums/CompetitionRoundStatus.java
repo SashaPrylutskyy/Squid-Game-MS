@@ -1,6 +1,6 @@
 package com.sashaprylutskyy.squidgamems.model.enums;
 
-public enum CompetitionStatus {
+public enum CompetitionRoundStatus {
     CONFIGURING(),
     RUNNING(),
     CANCELED(),

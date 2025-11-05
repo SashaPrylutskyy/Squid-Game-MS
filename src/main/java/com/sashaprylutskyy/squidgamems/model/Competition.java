@@ -1,6 +1,6 @@
 package com.sashaprylutskyy.squidgamems.model;
 
-import com.sashaprylutskyy.squidgamems.model.enums.CompetitionStatus;
+import com.sashaprylutskyy.squidgamems.model.enums.CompetitionRoundStatus;
 import jakarta.persistence.*;
 
 
@@ -17,7 +17,7 @@ public class Competition {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private CompetitionStatus status;
+    private CompetitionRoundStatus status;
 
     @ManyToOne
     @JoinColumn(name = "created_by")
@@ -31,10 +31,10 @@ public class Competition {
     }
 
     public Competition(String title, Long lobbyId, User createdBy, Long currentTime) {
-        this(title, lobbyId, CompetitionStatus.CONFIGURING, createdBy, currentTime, currentTime);
+        this(title, lobbyId, CompetitionRoundStatus.CONFIGURING, createdBy, currentTime, currentTime);
     }
 
-    public Competition(String title, Long lobbyId, CompetitionStatus status, User createdBy, Long createdAt, Long updatedAt) {
+    public Competition(String title, Long lobbyId, CompetitionRoundStatus status, User createdBy, Long createdAt, Long updatedAt) {
         this.title = title;
         this.lobbyId = lobbyId;
         this.status = status;
@@ -67,11 +67,11 @@ public class Competition {
         this.lobbyId = lobbyId;
     }
 
-    public CompetitionStatus getStatus() {
+    public CompetitionRoundStatus getStatus() {
         return status;
     }
 
-    public void setStatus(CompetitionStatus status) {
+    public void setStatus(CompetitionRoundStatus status) {
         this.status = status;
     }
 
