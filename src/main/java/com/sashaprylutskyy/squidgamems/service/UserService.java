@@ -9,6 +9,7 @@ import com.sashaprylutskyy.squidgamems.model.dto.assignment.AssignmentResponsePl
 import com.sashaprylutskyy.squidgamems.model.dto.refCode.RefCodeSummaryDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.user.*;
 import com.sashaprylutskyy.squidgamems.model.enums.Env;
+import com.sashaprylutskyy.squidgamems.model.enums.Sex;
 import com.sashaprylutskyy.squidgamems.model.enums.UserStatus;
 import com.sashaprylutskyy.squidgamems.model.mapper.RefCodeMapper;
 import com.sashaprylutskyy.squidgamems.model.mapper.UserMapper;
@@ -71,7 +72,31 @@ public class UserService {
 
     public User getUserById(Long id) {
         return userRepo.findUserById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("User No.%d not found".formatted(id)));
+                .orElseThrow(() -> new UsernameNotFoundException("User No.%d is not found".formatted(id)));
+    }
+
+    public List<UserSummaryDTO> getUserList(Env env, Long envId) {
+        List<Assignment> assignments = assignmentService
+                .getAssignmentList(env, envId);
+
+        return userMapper.toSummaryDTOList(assignments);
+    }
+
+    public List<UserSummaryDTO> getUserList(Env env, Long envId,
+                                            UserStatus userStatus) {
+        List<Assignment> assignments = assignmentService
+                .getAssignmentList(env, envId, userStatus);
+
+        return userMapper.toSummaryDTOList(assignments);
+    }
+
+    public List<UserSummaryDTO> getUserList(Env env, Long envId,
+                                            UserStatus userStatus,
+                                            Sex sex) {
+        List<Assignment> assignments = assignmentService
+                .getAssignmentList(env, envId, userStatus, sex);
+
+        return userMapper.toSummaryDTOList(assignments);
     }
 
     @Transactional
@@ -122,7 +147,8 @@ public class UserService {
                 if (assignment != null) {
                     playerEntities.add(assignment.getUser());
                 }
-            } catch (UsernameNotFoundException ignored) {}
+            } catch (UsernameNotFoundException ignored) {
+            }
         }
 
         if (assign) {

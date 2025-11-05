@@ -1,9 +1,13 @@
 package com.sashaprylutskyy.squidgamems.model.mapper;
 
+import com.sashaprylutskyy.squidgamems.model.Assignment;
 import com.sashaprylutskyy.squidgamems.model.User;
 import com.sashaprylutskyy.squidgamems.model.dto.user.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
@@ -22,4 +26,18 @@ public interface UserMapper {
     @Mapping(target = "id", ignore = true)
     User toEntity(UserRequestDTO dto);
 
+    @Mapping(target = "id", source = "user.id")
+    @Mapping(target = "email", source = "user.email")
+    @Mapping(target = "role", source = "user.role")
+    @Mapping(target = "status", source = "user.status")
+    UserSummaryDTO toSummaryDTO(Assignment assignment);
+
+    default List<UserSummaryDTO> toSummaryDTOList(List<Assignment> assignments) {
+        if (assignments == null) {
+            return List.of();
+        }
+        return assignments.stream()
+                .map(this::toSummaryDTO)
+                .collect(Collectors.toList());
+    }
 }

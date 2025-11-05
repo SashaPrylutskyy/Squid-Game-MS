@@ -4,6 +4,8 @@ import com.sashaprylutskyy.squidgamems.model.Assignment;
 import com.sashaprylutskyy.squidgamems.model.User;
 import com.sashaprylutskyy.squidgamems.model.dto.assignment.AssignmentResponsePlayersDTO;
 import com.sashaprylutskyy.squidgamems.model.enums.Env;
+import com.sashaprylutskyy.squidgamems.model.enums.Sex;
+import com.sashaprylutskyy.squidgamems.model.enums.UserStatus;
 import com.sashaprylutskyy.squidgamems.model.mapper.UserMapper;
 import com.sashaprylutskyy.squidgamems.repository.AssignmentRepository;
 import jakarta.persistence.NoResultException;
@@ -33,6 +35,18 @@ public class AssignmentService {
         return assignmentRepo.findAssignmentByEnvAndUser(Env.LOBBY, user)
                 .orElseThrow(() -> new NoResultException
                         ("User %s is not assigned to any lobby.".formatted(user.getEmail())));
+    }
+
+    public List<Assignment> getAssignmentList(Env env, Long envId) {
+        return assignmentRepo.findAssignments(env, envId);
+    }
+
+    public List<Assignment> getAssignmentList(Env env, Long envId, UserStatus status) {
+        return assignmentRepo.findAssignments(env, envId, status);
+    }
+
+    public List<Assignment> getAssignmentList(Env env, Long envId, UserStatus status, Sex sex) {
+        return assignmentRepo.findAssignments(env, envId, status, sex);
     }
 
     public void assignUserToLobby(User user, Long lobbyId) {
