@@ -42,20 +42,20 @@ public class CompetitionController {
         return new ResponseEntity<>(alivePlayers, HttpStatus.OK);
     }
 
+    @GetMapping("/{competitionId}/{userStatus}")
+    public ResponseEntity<List<UserSummaryDTO>> getUsers(@PathVariable Long competitionId,
+                                                         @PathVariable UserStatus userStatus) {
+        List<UserSummaryDTO> alivePlayers = userService
+                .getUserList(Env.COMPETITION, competitionId, userStatus);
+        return new ResponseEntity<>(alivePlayers, HttpStatus.OK);
+    }
+
     @GetMapping("/{competitionId}/{userStatus}/{sex}")
     public ResponseEntity<List<UserSummaryDTO>> getUsers(@PathVariable Long competitionId,
                                                          @PathVariable UserStatus userStatus,
                                                          @PathVariable Sex sex) {
         List<UserSummaryDTO> alivePlayers = userService
                 .getUserList(Env.COMPETITION, competitionId, userStatus, sex);
-        return new ResponseEntity<>(alivePlayers, HttpStatus.OK);
-    }
-
-    @GetMapping("/{competitionId}/{userStatus}")
-    public ResponseEntity<List<UserSummaryDTO>> getUsers(@PathVariable Long competitionId,
-                                                         @PathVariable UserStatus userStatus) {
-        List<UserSummaryDTO> alivePlayers = userService
-                .getUserList(Env.COMPETITION, competitionId, userStatus);
         return new ResponseEntity<>(alivePlayers, HttpStatus.OK);
     }
 
