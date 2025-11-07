@@ -14,6 +14,7 @@ public class Competition {
 
     private String title;
     private Long lobbyId;
+    private Long currentRoundId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -31,7 +32,7 @@ public class Competition {
     }
 
     public Competition(String title, Long lobbyId, User createdBy, Long currentTime) {
-        this(title, lobbyId, CompetitionRoundStatus.CONFIGURING, createdBy, currentTime, currentTime);
+        this(title, lobbyId, CompetitionRoundStatus.PENDING, createdBy, currentTime, currentTime);
     }
 
     public Competition(String title, Long lobbyId, CompetitionRoundStatus status, User createdBy, Long createdAt, Long updatedAt) {
@@ -65,6 +66,14 @@ public class Competition {
 
     public void setLobbyId(Long lobbyId) {
         this.lobbyId = lobbyId;
+    }
+
+    public Long getCurrentRoundId() {
+        return currentRoundId;
+    }
+
+    public void setCurrentRoundId(Long currentRoundId) {
+        this.currentRoundId = currentRoundId;
     }
 
     public CompetitionRoundStatus getStatus() {

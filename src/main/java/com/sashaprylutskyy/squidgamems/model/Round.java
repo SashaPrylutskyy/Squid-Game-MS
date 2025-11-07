@@ -14,8 +14,9 @@ public class Round {
     @Column(nullable = false)
     private Long competitionId;
 
-    @Column(nullable = false)
-    private Long gameId;
+    @ManyToOne
+    @JoinColumn(name = "game_id")
+    private Game game;
 
     @Column(nullable = false)
     private Byte roundNumber;
@@ -39,12 +40,12 @@ public class Round {
         this.id = id;
     }
 
-    public Long getGameId() {
-        return gameId;
+    public Game getGame() {
+        return game;
     }
 
-    public void setGameId(Long gameId) {
-        this.gameId = gameId;
+    public void setGame(Game game) {
+        this.game = game;
     }
 
     public Long getCompetitionId() {

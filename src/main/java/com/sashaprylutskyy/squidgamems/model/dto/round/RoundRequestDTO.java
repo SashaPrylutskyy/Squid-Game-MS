@@ -12,7 +12,7 @@ public class RoundRequestDTO {
 
     @NotNull
     @Size(min = 1, message = "At least one round must be provided")
-    private List<RoundSummaryDTO> roundSummaryDTOs;
+    private List<Long> gameIds;
 
     public RoundRequestDTO() {
 
@@ -26,11 +26,11 @@ public class RoundRequestDTO {
         this.competitionId = competitionId;
     }
 
-    public List<RoundSummaryDTO> getRoundSummaryDTOs() {
-        return roundSummaryDTOs;
+    public List<Long> getGameIds() {
+        return gameIds;
     }
 
-    public void setRoundSummaryDTOs(List<RoundSummaryDTO> roundSummaryDTOs) {
-        this.roundSummaryDTOs = roundSummaryDTOs;
+    public void setGameIds(List<Long> gameIds) {
+        this.gameIds = gameIds;
     }
 }

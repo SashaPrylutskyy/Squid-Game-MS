@@ -6,7 +6,10 @@ import com.sashaprylutskyy.squidgamems.model.dto.game.GameRequestDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.game.GameSummaryDTO;
 import com.sashaprylutskyy.squidgamems.model.mapper.GameMapper;
 import com.sashaprylutskyy.squidgamems.repository.GameRepo;
+import jakarta.persistence.NoResultException;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class GameService {
@@ -33,4 +36,7 @@ public class GameService {
         return gameMapper.toSummaryDTO(game);
     }
 
+    public List<Game> getGamesByIds(List<Long> ids) {
+        return gameRepo.findAllByIdIn(ids);
+    }
 }

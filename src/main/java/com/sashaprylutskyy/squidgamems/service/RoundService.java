@@ -1,10 +1,17 @@
 package com.sashaprylutskyy.squidgamems.service;
 
+import com.sashaprylutskyy.squidgamems.model.Competition;
+import com.sashaprylutskyy.squidgamems.model.Game;
 import com.sashaprylutskyy.squidgamems.model.Round;
 import com.sashaprylutskyy.squidgamems.model.dto.round.RoundRequestDTO;
+import com.sashaprylutskyy.squidgamems.model.dto.round.RoundListResponseDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.round.RoundResponseDTO;
+import com.sashaprylutskyy.squidgamems.model.enums.CompetitionRoundStatus;
 import com.sashaprylutskyy.squidgamems.model.mapper.RoundMapper;
+import com.sashaprylutskyy.squidgamems.repository.CompetitionRepo;
 import com.sashaprylutskyy.squidgamems.repository.RoundRepo;
+import com.sashaprylutskyy.squidgamems.util.TimerService;
+import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -15,17 +22,81 @@ public class RoundService {
 
     private final RoundMapper roundMapper;
     private final RoundRepo roundRepo;
+    private final GameService gameService;
+    private final CompetitionService competitionService;
+    private final TimerService timerService;
+    private final CompetitionRepo competitionRepo;
 
-    public RoundService(RoundMapper roundMapper, RoundRepo roundRepo) {
+    public RoundService(RoundMapper roundMapper, RoundRepo roundRepo, GameService gameService,
+                        CompetitionService competitionService, TimerService timerService,
+                        CompetitionRepo competitionRepo) {
         this.roundMapper = roundMapper;
         this.roundRepo = roundRepo;
+        this.gameService = gameService;
+        this.competitionService = competitionService;
+        this.timerService = timerService;
+        this.competitionRepo = competitionRepo;
+    }
+
+    private Round getCurrentRound(Long competitionId) {
+        Competition competition = competitionService.getById(competitionId);
+        return roundRepo.findByIdAndCompetitionId(competition.getCurrentRoundId(), competitionId)
+                .orElseThrow(() -> new NoResultException("Nothing was found."));
+    }
+
+    public RoundResponseDTO getCurrentRoundInfo(Long competitionId) {
+        Round round = getCurrentRound(competitionId);
+        return roundMapper.toResponseDTO(round);
+    }
+
+    public Round getNextRound(Long competitionId) {
+        return roundRepo.findNextRounds(competitionId).stream()
+                .findFirst()
+                .orElseThrow(() -> new NoResultException("There are no more rounds left."));
     }
 
     @Transactional
-    public RoundResponseDTO addRounds(RoundRequestDTO dto) {
-        List<Round> rounds = roundMapper.toEntityList(dto);
+    public RoundListResponseDTO addRounds(RoundRequestDTO dto) {
+        Long competitionId = dto.getCompetitionId();
+
+        competitionService.getById(competitionId);
+
+        List<Game> games = gameService.getGamesByIds(dto.getGameIds());
+        List<Round> rounds = roundMapper.toEntityList(dto, games);
         roundRepo.saveAll(rounds);
 
-        return roundMapper.toResponseDTO(dto.getCompetitionId(), rounds);
+        return roundMapper.toListResponseDTO(dto.getCompetitionId(), rounds);
+    }
+
+    //todo don't start a round if competition status is not ACTIVE
+    //todo check whether a voting has ended before starting a next round.
+    @Transactional
+    public RoundResponseDTO startNextRound(Long competitionId) {
+        Round round = getNextRound(competitionId);
+        round.setStatus(CompetitionRoundStatus.ACTIVE);
+        round.setStartedAt(System.currentTimeMillis());
+
+        Competition currentCompetition = competitionRepo.getReferenceById(competitionId);
+        currentCompetition.setCurrentRoundId(round.getId());
+
+        timerService.runAfterDelay(() -> endRound(round), 60 * 1000 * round.getGame().getGameDuration());
+
+        return roundMapper.toResponseDTO(round);
+    }
+
+    @Transactional
+    protected Round endRound(Round round) {
+        round.setEndedAt(System.currentTimeMillis());
+        round.setStatus(CompetitionRoundStatus.COMPLETED);
+        return roundRepo.save(round);
+    }
+
+    //todo cancel a runAfterDelay() method using a cancel() method
+    @Transactional
+    public RoundResponseDTO endCurrentRound(Long competitionId) {
+        Round round = getCurrentRound(competitionId);
+        round = endRound(round);
+
+        return roundMapper.toResponseDTO(round);
     }
 }

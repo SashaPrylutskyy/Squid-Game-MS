@@ -1,11 +1,15 @@
 package com.sashaprylutskyy.squidgamems.model.dto.round;
 
-import java.util.List;
+import com.sashaprylutskyy.squidgamems.model.enums.CompetitionRoundStatus;
 
 public class RoundResponseDTO {
 
     private Long competitionId;
-    private List<RoundSummaryDTO> roundSummaryDTOs;
+    private Long gameId;
+    private Byte roundNumber;
+    private CompetitionRoundStatus status;
+    private Long startedAt;
+    private Long endedAt;
 
     public RoundResponseDTO() {
 
@@ -19,11 +23,43 @@ public class RoundResponseDTO {
         this.competitionId = competitionId;
     }
 
-    public List<RoundSummaryDTO> getRoundSummaryDTOs() {
-        return roundSummaryDTOs;
+    public Long getGameId() {
+        return gameId;
     }
 
-    public void setRoundSummaryDTOs(List<RoundSummaryDTO> roundSummaryDTOs) {
-        this.roundSummaryDTOs = roundSummaryDTOs;
+    public void setGameId(Long gameId) {
+        this.gameId = gameId;
+    }
+
+    public Byte getRoundNumber() {
+        return roundNumber;
+    }
+
+    public void setRoundNumber(Byte roundNumber) {
+        this.roundNumber = roundNumber;
+    }
+
+    public CompetitionRoundStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(CompetitionRoundStatus status) {
+        this.status = status;
+    }
+
+    public Long getStartedAt() {
+        return startedAt;
+    }
+
+    public void setStartedAt(Long startedAt) {
+        this.startedAt = startedAt;
+    }
+
+    public Long getEndedAt() {
+        return endedAt;
+    }
+
+    public void setEndedAt(Long endedAt) {
+        this.endedAt = endedAt;
     }
 }
