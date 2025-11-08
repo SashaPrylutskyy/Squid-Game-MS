@@ -64,10 +64,10 @@ public class RoundService {
 
     @Transactional
     public RoundListResponseDTO addRounds(RoundRequestDTO dto) {
-        Long competitionId = dto.getCompetitionId();
-
-        competitionService.getById(competitionId);
-
+        Competition currentCompetition = competitionService.getById(dto.getCompetitionId());
+        if (currentCompetition.getStatus() != CompetitionRoundStatus.PENDING) {
+            throw new RuntimeException("Unable to add a new round to a competition, cuz it's ACTIVE/COMPLETED/CANCELED or ARCHIVED.");
+        }
         List<Game> games = gameService.getGamesByIds(dto.getGameIds());
         List<Round> rounds = roundMapper.toEntityList(dto, games);
         roundRepo.saveAll(rounds);
