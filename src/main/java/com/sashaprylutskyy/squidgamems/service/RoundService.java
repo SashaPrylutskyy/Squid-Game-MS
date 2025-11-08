@@ -38,6 +38,13 @@ public class RoundService {
         this.competitionRepo = competitionRepo;
     }
 
+    public Round getById(Long roundId) {
+        return roundRepo.findById(roundId)
+                .orElseThrow(() -> new NoResultException(
+                        "Round No.%d is not found.".formatted(roundId))
+                );
+    }
+
     private Round getCurrentRound(Long competitionId) {
         Competition competition = competitionService.getById(competitionId);
         return roundRepo.findByIdAndCompetitionId(competition.getCurrentRoundId(), competitionId)

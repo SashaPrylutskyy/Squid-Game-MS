@@ -3,6 +3,8 @@ package com.sashaprylutskyy.squidgamems.model.enums;
 public enum UserStatus {
 
     ALIVE(),
+    PASSED(),
     ELIMINATED(),
-    WINNER();
+    TIMEOUT(),
+    WINNER()
 }
