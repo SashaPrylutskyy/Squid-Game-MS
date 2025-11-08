@@ -5,6 +5,5 @@ public enum UserStatus {
     ALIVE(),
     PASSED(),
     ELIMINATED(),
-    TIMEOUT(),
-    WINNER()
+    TIMEOUT()
 }

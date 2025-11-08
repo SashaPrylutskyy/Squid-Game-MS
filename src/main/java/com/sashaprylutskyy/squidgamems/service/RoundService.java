@@ -75,34 +75,43 @@ public class RoundService {
         return roundMapper.toListResponseDTO(dto.getCompetitionId(), rounds);
     }
 
-    //todo don't start a round if competition status is not ACTIVE
     //todo check whether a voting has ended before starting a next round.
     @Transactional
     public RoundResponseDTO startNextRound(Long competitionId) {
+        Competition currentCompetition = competitionService.getById(competitionId);
         Round round = getNextRound(competitionId);
+
         round.setStatus(CompetitionRoundStatus.ACTIVE);
         round.setStartedAt(System.currentTimeMillis());
 
-        Competition currentCompetition = competitionRepo.getReferenceById(competitionId);
         currentCompetition.setCurrentRoundId(round.getId());
+        currentCompetition.setStatus(CompetitionRoundStatus.ACTIVE);
 
-        timerService.runAfterDelay(() -> endRound(round), 60 * 1000 * round.getGame().getGameDuration());
-
+        timerService.runAfterDelay(() -> endRound(round, currentCompetition),
+                60 * 1000 * round.getGame().getGameDuration());
         return roundMapper.toResponseDTO(round);
     }
 
     @Transactional
-    protected Round endRound(Round round) {
+    protected Round endRound(Round round, Competition currentCompetition) {
         round.setEndedAt(System.currentTimeMillis());
         round.setStatus(CompetitionRoundStatus.COMPLETED);
+
+        try {
+            getNextRound(round.getCompetitionId());
+        } catch (NoResultException e) {
+            currentCompetition.setStatus(CompetitionRoundStatus.COMPLETED);
+            competitionRepo.save(currentCompetition);
+        }
         return roundRepo.save(round);
     }
 
     //todo cancel a runAfterDelay() method using a cancel() method
     @Transactional
     public RoundResponseDTO endCurrentRound(Long competitionId) {
+        Competition currentCompetition = competitionService.getById(competitionId);
         Round round = getCurrentRound(competitionId);
-        round = endRound(round);
+        round = endRound(round, currentCompetition);
 
         return roundMapper.toResponseDTO(round);
     }
