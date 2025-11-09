@@ -10,7 +10,10 @@ import com.sashaprylutskyy.squidgamems.model.dto.roundResult.RoundResultSummaryD
 import com.sashaprylutskyy.squidgamems.model.enums.Env;
 import com.sashaprylutskyy.squidgamems.model.enums.UserStatus;
 import com.sashaprylutskyy.squidgamems.model.mapper.RoundResultMapper;
+import com.sashaprylutskyy.squidgamems.repository.RoundRepo;
 import com.sashaprylutskyy.squidgamems.repository.RoundResultRepo;
+import com.sashaprylutskyy.squidgamems.repository.UserRepository;
+import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -20,19 +23,29 @@ import java.util.List;
 @Service
 public class RoundResultService {
 
-    private final RoundService roundService;
     private final UserService userService;
     private final RoundResultMapper roundResultMapper;
     private final RoundResultRepo roundResultRepo;
     private final AssignmentService assignmentService;
+    private final RoundRepo roundRepo;
+    private final UserRepository userRepository;
 
-    public RoundResultService(RoundService roundService, UserService userService,
-                              RoundResultMapper roundResultMapper, RoundResultRepo roundResultRepo, AssignmentService assignmentService) {
-        this.roundService = roundService;
+    public RoundResultService(UserService userService, RoundResultMapper roundResultMapper,
+                              RoundResultRepo roundResultRepo, AssignmentService assignmentService,
+                              RoundRepo roundRepo, UserRepository userRepository) {
         this.userService = userService;
         this.roundResultMapper = roundResultMapper;
         this.roundResultRepo = roundResultRepo;
         this.assignmentService = assignmentService;
+        this.roundRepo = roundRepo;
+        this.userRepository = userRepository;
+    }
+
+    private Round getRoundById(Long roundId) {
+        return roundRepo.findById(roundId)
+                .orElseThrow(() -> new NoResultException(
+                        "Round No.%d is not found.".formatted(roundId))
+                );
     }
 
     public List<RoundResult> getReports(Long roundId) {
@@ -55,7 +68,7 @@ public class RoundResultService {
     @Transactional
     public RoundResultResponseDTO reportPlayerResult(Long roundId, Long playerId,
                                                      UserStatus userStatus) {
-        Round round = roundService.getById(roundId);
+        Round round = getRoundById(roundId);
         User player = userService.getUserById(playerId);
         User principal = userService.getPrincipal();
 
@@ -73,23 +86,34 @@ public class RoundResultService {
         User principal = userService.getPrincipal();
         Long now = System.currentTimeMillis();
 
+        UserStatus finalStatus;
+
+        List<User> usersToUpdate = new ArrayList<>();
+
         List<RoundResult> rrs = roundResultRepo.findAllBy(dto.getRoundId(), dto.getPlayerIds());
         for (RoundResult rr : rrs) {
             rr.setConfirmedBy(principal);
             rr.setConfirmedAt(now);
 
             if (dto.isValid()) {
-                UserStatus userStatus = (rr.getStatus() == UserStatus.ELIMINATED)
-                        ? UserStatus.PASSED : UserStatus.ELIMINATED;
+                finalStatus = rr.getStatus();
+            } else {
+                finalStatus = (rr.getStatus() == UserStatus.ELIMINATED)
+                        ? UserStatus.PASSED
+                        : UserStatus.ELIMINATED;
+            }
 
-                rr.setStatus(userStatus);
-                if (userStatus == UserStatus.ELIMINATED) {
-                    User user = rr.getUser();
-                    user.setStatus(userStatus); //todo переконатися, що статус гравця зберігається до БД
-                }
+            rr.setStatus(finalStatus);
+            if (finalStatus == UserStatus.ELIMINATED) {
+                User user = rr.getUser();
+                user.setStatus(finalStatus);
+                usersToUpdate.add(user);
             }
         }
         roundResultRepo.saveAll(rrs);
+        if (!usersToUpdate.isEmpty()) {
+            userRepository.saveAll(usersToUpdate);
+        }
 
         return roundResultMapper.toSummaryDTO(rrs);
     }

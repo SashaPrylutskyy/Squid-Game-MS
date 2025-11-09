@@ -97,7 +97,6 @@ public class RoundService {
         return roundMapper.toResponseDTO(round);
     }
 
-    //todo set status "TIMEOUT" for those players that haven't been reported
     @Transactional
     protected Round endRound(Round round, Competition currentCompetition) {
         round.setEndedAt(System.currentTimeMillis());
@@ -114,7 +113,6 @@ public class RoundService {
         return roundRepo.save(round);
     }
 
-    //todo set status "TIMEOUT" for those players that haven't been reported
     //todo cancel a runAfterDelay() method using a cancel() method
     @Transactional
     public RoundResponseDTO endCurrentRound(Long competitionId) {
