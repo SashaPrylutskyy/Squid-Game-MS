@@ -19,8 +19,6 @@ public class VoteController {
         this.voteService = voteService;
     }
 
-    //todo: voted, not voted
-
     @GetMapping("/{roundId}")
     @Secured({"ROLE_FRONTMAN", "ROLE_HOST"})
     public ResponseEntity<List<VoteResponseDTO>> getVotes(@PathVariable Long roundId) {
