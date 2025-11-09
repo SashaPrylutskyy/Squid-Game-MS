@@ -49,6 +49,12 @@ public class AssignmentService {
         return assignmentRepo.findAssignments(env, envId, status, sex);
     }
 
+    public List<Assignment> getAssignmentsListExcludingUsersByIds(Env env, Long envId,
+                                                                  List<Long> userIds,
+                                                                  UserStatus userStatus) {
+        return assignmentRepo.findAssignmentsListExcludingUsersByIds(env, envId, userIds, userStatus);
+    }
+
     public void assignUserToLobby(User user, Long lobbyId) {
         Assignment assignment = new Assignment(
                 Env.LOBBY,

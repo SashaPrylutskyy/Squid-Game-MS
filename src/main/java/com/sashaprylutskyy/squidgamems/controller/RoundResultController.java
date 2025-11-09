@@ -24,7 +24,7 @@ public class RoundResultController {
     @GetMapping("/{roundId}/reported")
     @Secured("ROLE_FRONTMAN")
     public ResponseEntity<RoundResultSummaryDTO> getReportedPlayers(@PathVariable Long roundId) {
-        RoundResultSummaryDTO response = roundResultService.getReportedPlayers(roundId);
+        RoundResultSummaryDTO response = roundResultService.getReportsSummary(roundId);
         return ResponseEntity.ok(response);
     }
 

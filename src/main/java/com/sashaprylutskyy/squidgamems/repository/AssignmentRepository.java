@@ -63,4 +63,17 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
             @Param("status") UserStatus status,
             @Param("sex") Sex sex);
 
+
+    @Query("""
+            SELECT a FROM Assignment a
+            WHERE a.env = :env
+               AND a.envId = :envId
+               AND (:userIds IS NULL OR a.user.id NOT IN :userIds)
+               AND a.user.status = :status
+            """)
+    List<Assignment> findAssignmentsListExcludingUsersByIds(
+            @Param("env") Env env,
+            @Param("envId") Long envId,
+            @Param("userIds") List<Long> userIds,
+            @Param("status") UserStatus status);
 }

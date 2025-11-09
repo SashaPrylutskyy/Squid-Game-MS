@@ -26,16 +26,18 @@ public class RoundService {
     private final CompetitionService competitionService;
     private final TimerService timerService;
     private final CompetitionRepo competitionRepo;
+    private final RoundResultService roundResultService;
 
     public RoundService(RoundMapper roundMapper, RoundRepo roundRepo, GameService gameService,
                         CompetitionService competitionService, TimerService timerService,
-                        CompetitionRepo competitionRepo) {
+                        CompetitionRepo competitionRepo, RoundResultService roundResultService) {
         this.roundMapper = roundMapper;
         this.roundRepo = roundRepo;
         this.gameService = gameService;
         this.competitionService = competitionService;
         this.timerService = timerService;
         this.competitionRepo = competitionRepo;
+        this.roundResultService = roundResultService;
     }
 
     public Round getById(Long roundId) {
@@ -76,6 +78,7 @@ public class RoundService {
     }
 
     //todo check whether a voting has ended before starting a next round.
+    //todo заборонити розпочинати новий раунд, допоки попередній не завершиться.
     @Transactional
     public RoundResponseDTO startNextRound(Long competitionId) {
         Competition currentCompetition = competitionService.getById(competitionId);
@@ -87,8 +90,10 @@ public class RoundService {
         currentCompetition.setCurrentRoundId(round.getId());
         currentCompetition.setStatus(CompetitionRoundStatus.ACTIVE);
 
+//        timerService.runAfterDelay(() -> endRound(round, currentCompetition),
+//                60 * 1000 * round.getGame().getGameDuration());
         timerService.runAfterDelay(() -> endRound(round, currentCompetition),
-                60 * 1000 * round.getGame().getGameDuration());
+                60 * 1000);
         return roundMapper.toResponseDTO(round);
     }
 
@@ -97,6 +102,8 @@ public class RoundService {
     protected Round endRound(Round round, Competition currentCompetition) {
         round.setEndedAt(System.currentTimeMillis());
         round.setStatus(CompetitionRoundStatus.COMPLETED);
+
+        roundResultService.setPlayersStatusTimeout(currentCompetition.getId(), round);
 
         try {
             getNextRound(round.getCompetitionId());
@@ -114,6 +121,8 @@ public class RoundService {
         Competition currentCompetition = competitionService.getById(competitionId);
         Round round = getCurrentRound(competitionId);
         round = endRound(round, currentCompetition);
+
+        roundResultService.setPlayersStatusTimeout(currentCompetition.getId(), round);
 
         return roundMapper.toResponseDTO(round);
     }

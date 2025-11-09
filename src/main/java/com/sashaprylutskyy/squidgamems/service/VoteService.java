@@ -6,7 +6,6 @@ import com.sashaprylutskyy.squidgamems.model.Vote;
 import com.sashaprylutskyy.squidgamems.model.dto.roundResult.RoundResultSummaryDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.vote.VoteResponseDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.vote.VoteResultDTO;
-import com.sashaprylutskyy.squidgamems.model.enums.Env;
 import com.sashaprylutskyy.squidgamems.model.mapper.VoteMapper;
 import com.sashaprylutskyy.squidgamems.repository.VoteRepo;
 import jakarta.transaction.Transactional;
@@ -21,15 +20,14 @@ public class VoteService {
     private final VoteMapper voteMapper;
     private final UserService userService;
     private final RoundService roundService;
-    private final AssignmentService assignmentService;
     private final RoundResultService roundResultService;
 
-    public VoteService(VoteRepo voteRepo, VoteMapper voteMapper, UserService userService, RoundService roundService, AssignmentService assignmentService, RoundResultService roundResultService) {
+    public VoteService(VoteRepo voteRepo, VoteMapper voteMapper, UserService userService,
+                       RoundService roundService, RoundResultService roundResultService) {
         this.voteRepo = voteRepo;
         this.voteMapper = voteMapper;
         this.userService = userService;
         this.roundService = roundService;
-        this.assignmentService = assignmentService;
         this.roundResultService = roundResultService;
     }
 
@@ -63,7 +61,7 @@ public class VoteService {
 
     //todo подумати, чи отримання користувачів через Assignments не буде кращим
     public VoteResultDTO getResults(Long roundId) {
-        RoundResultSummaryDTO reportedPlayers = roundResultService.getReportedPlayers(roundId, true);
+        RoundResultSummaryDTO reportedPlayers = roundResultService.getReportsSummary(roundId, true);
 
         int continueGame = getVotes(roundId, true).size();
         int quitGame = getVotes(roundId, false).size();

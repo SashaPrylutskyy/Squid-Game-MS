@@ -1,17 +1,20 @@
 package com.sashaprylutskyy.squidgamems.service;
 
+import com.sashaprylutskyy.squidgamems.model.Assignment;
 import com.sashaprylutskyy.squidgamems.model.Round;
 import com.sashaprylutskyy.squidgamems.model.RoundResult;
 import com.sashaprylutskyy.squidgamems.model.User;
 import com.sashaprylutskyy.squidgamems.model.dto.roundResult.RoundResultRequestDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.roundResult.RoundResultResponseDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.roundResult.RoundResultSummaryDTO;
+import com.sashaprylutskyy.squidgamems.model.enums.Env;
 import com.sashaprylutskyy.squidgamems.model.enums.UserStatus;
 import com.sashaprylutskyy.squidgamems.model.mapper.RoundResultMapper;
 import com.sashaprylutskyy.squidgamems.repository.RoundResultRepo;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -21,21 +24,27 @@ public class RoundResultService {
     private final UserService userService;
     private final RoundResultMapper roundResultMapper;
     private final RoundResultRepo roundResultRepo;
+    private final AssignmentService assignmentService;
 
     public RoundResultService(RoundService roundService, UserService userService,
-                              RoundResultMapper roundResultMapper, RoundResultRepo roundResultRepo) {
+                              RoundResultMapper roundResultMapper, RoundResultRepo roundResultRepo, AssignmentService assignmentService) {
         this.roundService = roundService;
         this.userService = userService;
         this.roundResultMapper = roundResultMapper;
         this.roundResultRepo = roundResultRepo;
+        this.assignmentService = assignmentService;
     }
 
-    public RoundResultSummaryDTO getReportedPlayers(Long roundId) {
+    public List<RoundResult> getReports(Long roundId) {
+        return roundResultRepo.findAllByRoundId(roundId);
+    }
+
+    public RoundResultSummaryDTO getReportsSummary(Long roundId) {
         List<RoundResult> rrs = roundResultRepo.findAllByRoundId(roundId);
         return roundResultMapper.toSummaryDTO(rrs);
     }
 
-    public RoundResultSummaryDTO getReportedPlayers(Long roundId, boolean isAlive) {
+    public RoundResultSummaryDTO getReportsSummary(Long roundId, boolean isAlive) {
         List<RoundResult> rrs = (isAlive) ?
                 roundResultRepo.findAllByRoundIdAndStatus(roundId, UserStatus.PASSED) :
                 roundResultRepo.findAllByRoundIdAndStatus(roundId, UserStatus.ELIMINATED);
@@ -83,6 +92,29 @@ public class RoundResultService {
         roundResultRepo.saveAll(rrs);
 
         return roundResultMapper.toSummaryDTO(rrs);
+    }
 
+    @Transactional
+    public void setPlayersStatusTimeout(Long competitionId, Round round) {
+        Long now = System.currentTimeMillis();
+
+        List<RoundResult> rrs = getReports(round.getId());
+        List<Long> existingUserIds = rrs.stream()
+                .map(rr -> rr.getUser().getId())
+                .toList();
+
+        List<Assignment> assignments = assignmentService.getAssignmentsListExcludingUsersByIds(
+                Env.COMPETITION, competitionId, existingUserIds, UserStatus.ALIVE);
+        List<User> playersToEliminate = assignments.stream()
+                .map(Assignment::getUser)
+                .toList();
+
+        List<RoundResult> rrsToSave = new ArrayList<>(playersToEliminate.size());
+        for (User player : playersToEliminate) {
+            RoundResult rr = new RoundResult(round, player, UserStatus.ELIMINATED, now, null); //вожливо все ж призначати статус TIMEOUT.
+            rrsToSave.add(rr);
+            rr.getUser().setStatus(UserStatus.ELIMINATED);
+        }
+        roundResultRepo.saveAll(rrsToSave);
     }
 }
