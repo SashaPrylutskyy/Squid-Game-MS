@@ -1,6 +1,7 @@
 package com.sashaprylutskyy.squidgamems.repository;
 
 import com.sashaprylutskyy.squidgamems.model.RoundResult;
+import com.sashaprylutskyy.squidgamems.model.enums.UserStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,4 +18,6 @@ public interface RoundResultRepo extends JpaRepository<RoundResult, Long> {
     );
 
     List<RoundResult> findAllByRoundId(Long roundId);
+
+    List<RoundResult> findAllByRoundIdAndStatus(Long roundId, UserStatus status);
 }

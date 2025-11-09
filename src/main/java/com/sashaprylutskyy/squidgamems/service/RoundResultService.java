@@ -35,6 +35,14 @@ public class RoundResultService {
         return roundResultMapper.toSummaryDTO(rrs);
     }
 
+    public RoundResultSummaryDTO getReportedPlayers(Long roundId, boolean isAlive) {
+        List<RoundResult> rrs = (isAlive) ?
+                roundResultRepo.findAllByRoundIdAndStatus(roundId, UserStatus.PASSED) :
+                roundResultRepo.findAllByRoundIdAndStatus(roundId, UserStatus.ELIMINATED);
+
+        return roundResultMapper.toSummaryDTO(rrs);
+    }
+
     @Transactional
     public RoundResultResponseDTO reportPlayerResult(Long roundId, Long playerId,
                                                      UserStatus userStatus) {
@@ -64,7 +72,12 @@ public class RoundResultService {
             if (dto.isValid()) {
                 UserStatus userStatus = (rr.getStatus() == UserStatus.ELIMINATED)
                         ? UserStatus.PASSED : UserStatus.ELIMINATED;
+
                 rr.setStatus(userStatus);
+                if (userStatus == UserStatus.ELIMINATED) {
+                    User user = rr.getUser();
+                    user.setStatus(userStatus); //todo переконатися, що статус гравця зберігається до БД
+                }
             }
         }
         roundResultRepo.saveAll(rrs);
