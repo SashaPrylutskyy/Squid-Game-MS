@@ -1,7 +1,6 @@
 package com.sashaprylutskyy.squidgamems.config;
 
 import jakarta.persistence.NoResultException;
-// ✨ 1. Додайте цей імпорт
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
