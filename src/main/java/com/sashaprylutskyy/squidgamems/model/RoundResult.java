@@ -4,7 +4,14 @@ import com.sashaprylutskyy.squidgamems.model.enums.UserStatus;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "round_results")
+@Table(name = "round_results",
+       uniqueConstraints = {
+           @UniqueConstraint(
+               name = "uk_round_user",
+               columnNames = {"round_id", "user_id"}
+           )
+       }
+)
 public class RoundResult {
 
     @Id
