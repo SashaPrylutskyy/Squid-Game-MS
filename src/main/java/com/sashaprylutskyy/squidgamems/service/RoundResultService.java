@@ -7,6 +7,7 @@ import com.sashaprylutskyy.squidgamems.model.User;
 import com.sashaprylutskyy.squidgamems.model.dto.roundResult.RoundResultRequestDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.roundResult.RoundResultResponseDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.roundResult.RoundResultSummaryDTO;
+import com.sashaprylutskyy.squidgamems.model.enums.CompetitionRoundStatus;
 import com.sashaprylutskyy.squidgamems.model.enums.Env;
 import com.sashaprylutskyy.squidgamems.model.enums.UserStatus;
 import com.sashaprylutskyy.squidgamems.model.mapper.RoundResultMapper;
@@ -17,6 +18,7 @@ import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,6 +74,9 @@ public class RoundResultService {
         User player = userService.getUserById(playerId);
         User principal = userService.getPrincipal();
 
+        if (round.getStatus() == CompetitionRoundStatus.COMPLETED) {
+            throw new RuntimeException("You snooze, you lose! The round has ended.");
+        }
         RoundResult rr = new RoundResult(
                 round, player, userStatus,
                 System.currentTimeMillis(),

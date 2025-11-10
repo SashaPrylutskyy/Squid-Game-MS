@@ -92,7 +92,7 @@ public class RoundService {
 
 //        timerService.runAfterDelay(() -> endRound(round, currentCompetition),
 //                60 * 1000 * round.getGame().getGameDuration());
-        timerService.runAfterDelay(() -> endRound(round, currentCompetition),
+        timerService.runAfterDelay(() -> endRound(round, currentCompetition), //todo: REVERT BACK! This is just for testing purposes.
                 60 * 1000);
         return roundMapper.toResponseDTO(round);
     }
