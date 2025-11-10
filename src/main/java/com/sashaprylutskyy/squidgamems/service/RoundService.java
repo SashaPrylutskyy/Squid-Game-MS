@@ -78,12 +78,14 @@ public class RoundService {
     }
 
     //todo check whether a voting has ended before starting a next round.
-    //todo заборонити розпочинати новий раунд, допоки попередній не завершиться.
     @Transactional
     public RoundResponseDTO startNextRound(Long competitionId) {
         Competition currentCompetition = competitionService.getById(competitionId);
-        Round round = getNextRound(competitionId);
+        if (currentCompetition.getStatus() == CompetitionRoundStatus.ACTIVE) {
+            throw new RuntimeException("Cannot start the next round while the previous one is still running");
+        }
 
+        Round round = getNextRound(competitionId);
         round.setStatus(CompetitionRoundStatus.ACTIVE);
         round.setStartedAt(System.currentTimeMillis());
 
