@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface RoundResultRepo extends JpaRepository<RoundResult, Long> {
 
-    @Query("select rr from RoundResult rr where rr.round.id = :roundId and rr.user.id in :userIds")
+    @Query("select rr from RoundResult rr where rr.round.id = :roundId and rr.user.id in :userIds and rr.confirmedAt is null")
     List<RoundResult> findAllBy(
             @Param("roundId") Long roundId, @Param("userIds") List<Long> userIds
     );
