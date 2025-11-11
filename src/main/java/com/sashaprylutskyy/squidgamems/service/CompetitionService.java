@@ -2,10 +2,14 @@ package com.sashaprylutskyy.squidgamems.service;
 
 import com.sashaprylutskyy.squidgamems.model.Assignment;
 import com.sashaprylutskyy.squidgamems.model.Competition;
+import com.sashaprylutskyy.squidgamems.model.Round;
 import com.sashaprylutskyy.squidgamems.model.User;
 import com.sashaprylutskyy.squidgamems.model.dto.competition.CompetitionResponseDTO;
+import com.sashaprylutskyy.squidgamems.model.enums.CompetitionRoundStatus;
 import com.sashaprylutskyy.squidgamems.model.mapper.CompetitionMapper;
 import com.sashaprylutskyy.squidgamems.repository.CompetitionRepo;
+import com.sashaprylutskyy.squidgamems.repository.RoundRepo;
+import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -15,13 +19,15 @@ public class CompetitionService {
     private final CompetitionRepo competitionRepo;
     private final AssignmentService assignmentService;
     private final CompetitionMapper competitionMapper;
+    private final RoundRepo roundRepo;
 
 
     public CompetitionService(CompetitionRepo competitionRepo, AssignmentService assignmentService,
-                              CompetitionMapper competitionMapper) {
+                              CompetitionMapper competitionMapper, RoundRepo roundRepo) {
         this.competitionRepo = competitionRepo;
         this.assignmentService = assignmentService;
         this.competitionMapper = competitionMapper;
+        this.roundRepo = roundRepo;
     }
 
     public Competition getById(Long id) {
@@ -38,5 +44,22 @@ public class CompetitionService {
         competition = competitionRepo.save(competition);
 
         return competitionMapper.toResponseDTO(competition);
+    }
+
+    public Round getRoundById(Long roundId) {
+        return roundRepo.findById(roundId)
+                .orElseThrow(() -> new NoResultException(
+                        "Round No.%d is not found.".formatted(roundId))
+                );
+    }
+
+    @Transactional
+    public void endCompetition(Long roundId, int continueGame, int quitGame, int remaining) {
+        if (remaining == 0 && (quitGame > continueGame)) {
+            Competition competition = getRoundById(roundId).getCompetition();
+            competition.setStatus(CompetitionRoundStatus.COMPLETED);
+            competitionRepo.save(competition);
+            //todo прописати виплату грошової винагороди вижившим гравцям
+        }
     }
 }

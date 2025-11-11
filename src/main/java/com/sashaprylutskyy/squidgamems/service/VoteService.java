@@ -23,14 +23,16 @@ public class VoteService {
     private final UserService userService;
     private final RoundResultService roundResultService;
     private final RoundRepo roundRepo;
+    private final CompetitionService competitionService;
 
     public VoteService(VoteRepo voteRepo, VoteMapper voteMapper, UserService userService,
-                       RoundResultService roundResultService, RoundRepo roundRepo) {
+                       RoundResultService roundResultService, RoundRepo roundRepo, CompetitionService competitionService) {
         this.voteRepo = voteRepo;
         this.voteMapper = voteMapper;
         this.userService = userService;
         this.roundResultService = roundResultService;
         this.roundRepo = roundRepo;
+        this.competitionService = competitionService;
     }
 
     private Round getRoundById(Long roundId) {
@@ -76,6 +78,7 @@ public class VoteService {
         int quitGame = getVotes(roundId, false).size();
         int remaining = reportedPlayers.getPlayers().size() - getVotes(roundId).size();
 
+        competitionService.endCompetition(roundId, continueGame, quitGame, remaining);
         return new VoteResultDTO(continueGame, quitGame, remaining);
     }
 }

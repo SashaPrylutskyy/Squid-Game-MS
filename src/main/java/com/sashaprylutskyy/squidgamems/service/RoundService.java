@@ -71,12 +71,13 @@ public class RoundService {
 
     @Transactional
     public RoundListResponseDTO addRounds(RoundRequestDTO dto) {
-        Competition currentCompetition = competitionService.getById(dto.getCompetitionId());
-        if (currentCompetition.getStatus() != CompetitionRoundStatus.PENDING) {
-            throw new RuntimeException("Unable to add a new round to a competition, cuz it's ACTIVE/COMPLETED/CANCELED or ARCHIVED.");
+        Competition competition = competitionService.getById(dto.getCompetitionId());
+        if (competition.getStatus() != CompetitionRoundStatus.PENDING) {
+            throw new RuntimeException("Failed to add rounds: competition isn't in a PENDING status");
         }
+
         List<Game> games = gameService.getGamesByIds(dto.getGameIds());
-        List<Round> rounds = roundMapper.toEntityList(currentCompetition, games);
+        List<Round> rounds = roundMapper.toEntityList(competition, games);
         roundRepo.saveAll(rounds);
 
         return roundMapper.toListResponseDTO(dto.getCompetitionId(), rounds);
@@ -84,9 +85,12 @@ public class RoundService {
 
     @Transactional
     public RoundResponseDTO startNextRound(Long competitionId) {
-        Competition currentCompetition = competitionService.getById(competitionId);
+        Competition competition = competitionService.getById(competitionId);
+        if (competition.getStatus() != CompetitionRoundStatus.ACTIVE) {
+            throw new RuntimeException("Failed to start a next round: competition isn't active.");
+        }
 
-        Long currentRoundId = currentCompetition.getCurrentRoundId();
+        Long currentRoundId = competition.getCurrentRoundId();
         if (currentRoundId != null) {
             Round currentRound = getById(currentRoundId);
             if (currentRound.getStatus() == CompetitionRoundStatus.ACTIVE) {
@@ -96,7 +100,7 @@ public class RoundService {
             VoteResultDTO voteResults = voteService.getResults(currentRoundId);
             if (voteResults.getRemaining() > 0) {
                 throw new RuntimeException("Cannot start next round: "
-                    + voteResults.getRemaining() + " players have not voted for the previous round yet.");
+                        + voteResults.getRemaining() + " players have not voted for the previous round yet.");
             }
         }
 
@@ -104,12 +108,12 @@ public class RoundService {
         round.setStatus(CompetitionRoundStatus.ACTIVE);
         round.setStartedAt(System.currentTimeMillis());
 
-        currentCompetition.setCurrentRoundId(round.getId());
-        currentCompetition.setStatus(CompetitionRoundStatus.ACTIVE);
+        competition.setCurrentRoundId(round.getId());
+        competition.setStatus(CompetitionRoundStatus.ACTIVE);
 
 //        timerService.runAfterDelay(() -> endRound(round, currentCompetition),
 //                60 * 1000 * round.getGame().getGameDuration());
-        timerService.runAfterDelay(() -> endRound(round, currentCompetition), //todo: REVERT BACK! This is just for testing purposes.
+        timerService.runAfterDelay(() -> endRound(round, competition), //todo: REVERT BACK! This is just for testing purposes.
                 60 * 1000);
         return roundMapper.toResponseDTO(round);
     }
