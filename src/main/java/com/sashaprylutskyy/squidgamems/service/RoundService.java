@@ -6,6 +6,7 @@ import com.sashaprylutskyy.squidgamems.model.Round;
 import com.sashaprylutskyy.squidgamems.model.dto.round.RoundRequestDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.round.RoundListResponseDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.round.RoundResponseDTO;
+import com.sashaprylutskyy.squidgamems.model.dto.vote.VoteResultDTO;
 import com.sashaprylutskyy.squidgamems.model.enums.CompetitionRoundStatus;
 import com.sashaprylutskyy.squidgamems.model.mapper.RoundMapper;
 import com.sashaprylutskyy.squidgamems.repository.CompetitionRepo;
@@ -27,10 +28,12 @@ public class RoundService {
     private final TimerService timerService;
     private final CompetitionRepo competitionRepo;
     private final RoundResultService roundResultService;
+    private final VoteService voteService;
 
     public RoundService(RoundMapper roundMapper, RoundRepo roundRepo, GameService gameService,
                         CompetitionService competitionService, TimerService timerService,
-                        CompetitionRepo competitionRepo, RoundResultService roundResultService) {
+                        CompetitionRepo competitionRepo, RoundResultService roundResultService,
+                        VoteService voteService) {
         this.roundMapper = roundMapper;
         this.roundRepo = roundRepo;
         this.gameService = gameService;
@@ -38,6 +41,7 @@ public class RoundService {
         this.timerService = timerService;
         this.competitionRepo = competitionRepo;
         this.roundResultService = roundResultService;
+        this.voteService = voteService;
     }
 
     public Round getById(Long roundId) {
@@ -77,12 +81,22 @@ public class RoundService {
         return roundMapper.toListResponseDTO(dto.getCompetitionId(), rounds);
     }
 
-    //todo check whether a voting has ended before starting a next round.
     @Transactional
     public RoundResponseDTO startNextRound(Long competitionId) {
         Competition currentCompetition = competitionService.getById(competitionId);
-        if (currentCompetition.getStatus() == CompetitionRoundStatus.ACTIVE) {
+        Round currentRound = getById(currentCompetition.getCurrentRoundId());
+        if (currentRound.getStatus() == CompetitionRoundStatus.ACTIVE) {
             throw new RuntimeException("Cannot start the next round while the previous one is still running");
+        }
+
+        Long lastRoundId = currentCompetition.getCurrentRoundId();
+        if (lastRoundId != null) {
+            VoteResultDTO voteResults = voteService.getResults(lastRoundId);
+
+            if (voteResults.getRemaining() > 0) {
+                throw new RuntimeException("Cannot start next round: "
+                    + voteResults.getRemaining() + " players have not voted for the previous round yet.");
+            }
         }
 
         Round round = getNextRound(competitionId);

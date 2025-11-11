@@ -1,10 +1,16 @@
 package com.sashaprylutskyy.squidgamems.model;
 
 import jakarta.persistence.*;
-import jdk.jfr.Name;
 
 @Entity
-@Name("votes")
+@Table(name = "votes",
+       uniqueConstraints = {
+           @UniqueConstraint(
+               name = "uk_round_player",
+               columnNames = {"round_id", "player_id"}
+           )
+       }
+)
 public class Vote {
 
     @Id

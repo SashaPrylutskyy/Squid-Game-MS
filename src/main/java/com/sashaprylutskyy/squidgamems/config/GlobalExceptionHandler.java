@@ -44,6 +44,11 @@ public class GlobalExceptionHandler {
                     .status(HttpStatus.CONFLICT)
                     .body(Map.of("error", "This player has already been reported."));
         }
+        if (causeMessage.contains("uk_round_player")) {
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", "You've already voted."));
+        }
 
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)

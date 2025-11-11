@@ -7,7 +7,9 @@ import com.sashaprylutskyy.squidgamems.model.dto.roundResult.RoundResultSummaryD
 import com.sashaprylutskyy.squidgamems.model.dto.vote.VoteResponseDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.vote.VoteResultDTO;
 import com.sashaprylutskyy.squidgamems.model.mapper.VoteMapper;
+import com.sashaprylutskyy.squidgamems.repository.RoundRepo;
 import com.sashaprylutskyy.squidgamems.repository.VoteRepo;
+import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -19,16 +21,23 @@ public class VoteService {
     private final VoteRepo voteRepo;
     private final VoteMapper voteMapper;
     private final UserService userService;
-    private final RoundService roundService;
     private final RoundResultService roundResultService;
+    private final RoundRepo roundRepo;
 
     public VoteService(VoteRepo voteRepo, VoteMapper voteMapper, UserService userService,
-                       RoundService roundService, RoundResultService roundResultService) {
+                       RoundResultService roundResultService, RoundRepo roundRepo) {
         this.voteRepo = voteRepo;
         this.voteMapper = voteMapper;
         this.userService = userService;
-        this.roundService = roundService;
         this.roundResultService = roundResultService;
+        this.roundRepo = roundRepo;
+    }
+
+    private Round getRoundById(Long roundId) {
+        return roundRepo.findById(roundId)
+                .orElseThrow(() -> new NoResultException(
+                        "Round No.%d is not found.".formatted(roundId))
+                );
     }
 
     public Vote getVote(User player, Round round) {
@@ -48,7 +57,7 @@ public class VoteService {
     @Transactional
     public VoteResponseDTO vote(Long roundId, boolean isQuit) {
         User principal = userService.getPrincipal();
-        Round round = roundService.getById(roundId);
+        Round round = getRoundById(roundId);
 
         if (getVote(principal, round) != null) {
             throw new RuntimeException("You've already voted.");
