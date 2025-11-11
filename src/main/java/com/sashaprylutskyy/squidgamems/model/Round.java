@@ -11,11 +11,12 @@ public class Round {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Long competitionId;
+    @ManyToOne
+    @JoinColumn(name = "competition_id", nullable = false)
+    private Competition competition;
 
     @ManyToOne
-    @JoinColumn(name = "game_id")
+    @JoinColumn(name = "game_id", nullable = false)
     private Game game;
 
     @Column(nullable = false)
@@ -48,12 +49,12 @@ public class Round {
         this.game = game;
     }
 
-    public Long getCompetitionId() {
-        return competitionId;
+    public Competition getCompetition() {
+        return competition;
     }
 
-    public void setCompetitionId(Long competitionId) {
-        this.competitionId = competitionId;
+    public void setCompetition(Competition competition) {
+        this.competition = competition;
     }
 
     public Byte getRoundNumber() {

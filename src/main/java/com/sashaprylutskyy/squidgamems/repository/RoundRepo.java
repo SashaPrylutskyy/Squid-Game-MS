@@ -14,11 +14,11 @@ public interface RoundRepo extends JpaRepository<Round, Long> {
 
     @Query( """
             SELECT r FROM Round r
-            WHERE r.competitionId = :competitionId
+            WHERE r.competition.id = :competitionId
                 AND r.startedAt IS NULL
             ORDER BY r.roundNumber ASC
             """)
     List<Round> findNextRounds(@Param("competitionId") Long competitionId);
 
-    Optional<Round> findByIdAndCompetitionId(Long id, Long competitionId);
+    Optional<Round> findByIdAndCompetition_Id(Long id, Long competitionId);
 }

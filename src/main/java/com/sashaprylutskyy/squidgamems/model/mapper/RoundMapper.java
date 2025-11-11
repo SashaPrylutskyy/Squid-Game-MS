@@ -1,8 +1,8 @@
 package com.sashaprylutskyy.squidgamems.model.mapper;
 
+import com.sashaprylutskyy.squidgamems.model.Competition;
 import com.sashaprylutskyy.squidgamems.model.Game;
 import com.sashaprylutskyy.squidgamems.model.Round;
-import com.sashaprylutskyy.squidgamems.model.dto.round.RoundRequestDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.round.RoundListResponseDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.round.RoundResponseDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.round.RoundSummaryDTO;
@@ -17,7 +17,7 @@ import java.util.stream.IntStream;
 public interface RoundMapper {
 
     @Mappings({
-            @Mapping(target = "competitionId", source = "competitionId"),
+            @Mapping(target = "competition", source = "competition"),
             @Mapping(target = "game", source = "game"),
             @Mapping(target = "roundNumber", source = "roundNumber"),
             @Mapping(target = "status", constant = "PENDING"),
@@ -25,12 +25,15 @@ public interface RoundMapper {
             @Mapping(target = "endedAt", ignore = true),
             @Mapping(target = "id", ignore = true)
     })
-    Round toEntity(Long competitionId, Game game, Byte roundNumber);
+    Round toEntity(Competition competition, Game game, Byte roundNumber);
 
-    default List<Round> toEntityList(RoundRequestDTO request, List<Game> games) {
+    default List<Round> toEntityList(
+            Competition competition,
+            List<Game> games
+    ) {
         return IntStream.range(0, games.size())
                 .mapToObj(i -> toEntity(
-                        request.getCompetitionId(),
+                        competition,
                         games.get(i),
                         (byte) (i + 1)
                 ))
@@ -55,7 +58,7 @@ public interface RoundMapper {
     }
 
     @Mappings({
-            @Mapping(target = "competitionId", source = "competitionId"),
+            @Mapping(target = "competitionId", source = "competition.id"),
             @Mapping(target = "roundNumber", source = "roundNumber"),
             @Mapping(target = "gameId", source = "game.id"),
             @Mapping(target = "status", source = "status"),
