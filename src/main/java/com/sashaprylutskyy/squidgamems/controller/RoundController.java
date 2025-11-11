@@ -56,7 +56,7 @@ public class RoundController {
     @PatchMapping("/{competitionId}/current_round/end")
     @Secured("ROLE_FRONTMAN")
     public ResponseEntity<RoundResponseDTO> endCurrentRound(@PathVariable Long competitionId) {
-        RoundResponseDTO response = roundService.endCurrentRound(competitionId);
+        RoundResponseDTO response = roundService.endRound(competitionId);
         return ResponseEntity.ok(response);
     }
 //

@@ -6,15 +6,22 @@ import com.sashaprylutskyy.squidgamems.model.Round;
 import com.sashaprylutskyy.squidgamems.model.User;
 import com.sashaprylutskyy.squidgamems.model.dto.competition.CompetitionResponseDTO;
 import com.sashaprylutskyy.squidgamems.model.enums.CompetitionRoundStatus;
+import com.sashaprylutskyy.squidgamems.model.enums.Env;
 import com.sashaprylutskyy.squidgamems.model.mapper.CompetitionMapper;
 import com.sashaprylutskyy.squidgamems.repository.CompetitionRepo;
 import com.sashaprylutskyy.squidgamems.repository.RoundRepo;
 import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class CompetitionService {
+
+    @Value("${min-players}")
+    private int minPlayers;
 
     private final CompetitionRepo competitionRepo;
     private final AssignmentService assignmentService;
@@ -51,6 +58,21 @@ public class CompetitionService {
                 .orElseThrow(() -> new NoResultException(
                         "Round No.%d is not found.".formatted(roundId))
                 );
+    }
+
+    @Transactional
+    public CompetitionResponseDTO startCompetition(Long competitionId) {
+        Competition competition = getById(competitionId);
+
+        List<Assignment> assignments = assignmentService
+                .getListOfAssignments(Env.COMPETITION, competition.getId());
+        if (assignments.size() < this.minPlayers) {
+            throw new RuntimeException("Cannot start a competition: %d/%d players to start."
+                    .formatted(assignments.size(), minPlayers));
+        }
+        competition.setStatus(CompetitionRoundStatus.ACTIVE);
+        competition = competitionRepo.save(competition);
+        return competitionMapper.toResponseDTO(competition);
     }
 
     @Transactional

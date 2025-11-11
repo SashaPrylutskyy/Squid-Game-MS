@@ -109,7 +109,6 @@ public class RoundService {
         round.setStartedAt(System.currentTimeMillis());
 
         competition.setCurrentRoundId(round.getId());
-        competition.setStatus(CompetitionRoundStatus.ACTIVE);
 
 //        timerService.runAfterDelay(() -> endRound(round, currentCompetition),
 //                60 * 1000 * round.getGame().getGameDuration());
@@ -136,7 +135,7 @@ public class RoundService {
 
     //todo cancel a runAfterDelay() method using a cancel() method
     @Transactional
-    public RoundResponseDTO endCurrentRound(Long competitionId) {
+    public RoundResponseDTO endRound(Long competitionId) {
         Competition currentCompetition = competitionService.getById(competitionId);
         Round round = getCurrentRound(competitionId);
         round = endRound(round, currentCompetition);
