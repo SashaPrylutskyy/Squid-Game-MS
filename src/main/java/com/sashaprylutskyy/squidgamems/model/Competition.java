@@ -17,7 +17,7 @@ public class Competition {
     private Long currentRoundId;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 25)
     private CompetitionRoundStatus status;
 
     @ManyToOne

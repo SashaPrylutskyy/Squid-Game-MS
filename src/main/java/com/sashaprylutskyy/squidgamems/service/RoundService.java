@@ -72,22 +72,24 @@ public class RoundService {
     @Transactional
     public RoundListResponseDTO addRounds(RoundRequestDTO dto) {
         Competition competition = competitionService.getById(dto.getCompetitionId());
-        if (competition.getStatus() != CompetitionRoundStatus.PENDING) {
-            throw new RuntimeException("Failed to add rounds: competition isn't in a PENDING status");
+        if (competition.getStatus() == CompetitionRoundStatus.PENDING ||
+            competition.getStatus() == CompetitionRoundStatus.READY) {
+
+            List<Game> games = gameService.getGamesByIds(dto.getGameIds());
+            List<Round> rounds = roundMapper.toEntityList(competition, games);
+            roundRepo.saveAll(rounds);
+
+            return roundMapper.toListResponseDTO(dto.getCompetitionId(), rounds);
+        } else {
+            throw new RuntimeException("Failed to add rounds: competition isn't in a PENDING or READY status");
         }
-
-        List<Game> games = gameService.getGamesByIds(dto.getGameIds());
-        List<Round> rounds = roundMapper.toEntityList(competition, games);
-        roundRepo.saveAll(rounds);
-
-        return roundMapper.toListResponseDTO(dto.getCompetitionId(), rounds);
     }
 
     @Transactional
     public RoundResponseDTO startNextRound(Long competitionId) {
         Competition competition = competitionService.getById(competitionId);
-        if (competition.getStatus() != CompetitionRoundStatus.ACTIVE) {
-            throw new RuntimeException("Failed to start a next round: competition isn't active.");
+        if (competition.getStatus() != CompetitionRoundStatus.READY) {
+            throw new RuntimeException("Failed to start a next round: competition isn't READY.");
         }
 
         Long currentRoundId = competition.getCurrentRoundId();

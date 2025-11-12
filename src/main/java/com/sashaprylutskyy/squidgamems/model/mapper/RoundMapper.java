@@ -58,6 +58,7 @@ public interface RoundMapper {
     }
 
     @Mappings({
+            @Mapping(target = "id", source = "id"),
             @Mapping(target = "competitionId", source = "competition.id"),
             @Mapping(target = "roundNumber", source = "roundNumber"),
             @Mapping(target = "gameId", source = "game.id"),

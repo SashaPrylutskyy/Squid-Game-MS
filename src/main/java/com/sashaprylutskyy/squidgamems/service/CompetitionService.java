@@ -84,4 +84,13 @@ public class CompetitionService {
             //todo прописати виплату грошової винагороди вижившим гравцям
         }
     }
+
+    @Transactional
+    public void updateCompetitionStatus(Long competitionId, CompetitionRoundStatus newStatus) {
+        Competition competition = getById(competitionId);
+        // Можна додати логіку перевірки,
+        // наприклад, не міняти статус, якщо він вже 'COMPLETED'
+        competition.setStatus(newStatus);
+        competitionRepo.save(competition);
+    }
 }
