@@ -52,13 +52,13 @@ public class TransactionService {
                 competition, sender, null, dto.getAmount(), TransactionType.DEPOSIT, now);
         transaction = transactionRepo.save(transaction);
 
-        checkCompetitionReadyStatus(competition);
+        checkCompetitionFundedStatus(competition);
 
         return transactionMapper.toResponseDTO(transaction);
     }
 
     @Transactional
-    protected void checkCompetitionReadyStatus(Competition competition) {
+    protected void checkCompetitionFundedStatus(Competition competition) {
         if (competition.getStatus() != CompetitionRoundStatus.PENDING) {
             return;
         }
@@ -69,7 +69,7 @@ public class TransactionService {
         if (currentContributions >= minVipContributions) {
             competitionService.updateCompetitionStatus(
                     competition.getId(),
-                    CompetitionRoundStatus.READY
+                    CompetitionRoundStatus.FUNDED
             );
         }
     }

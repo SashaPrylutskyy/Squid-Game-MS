@@ -63,6 +63,9 @@ public class CompetitionService {
     @Transactional
     public CompetitionResponseDTO startCompetition(Long competitionId) {
         Competition competition = getById(competitionId);
+        if (competition.getStatus() != CompetitionRoundStatus.FUNDED) {
+            throw new RuntimeException("Cannon start a competition: ain't funded enough");
+        }
 
         List<Assignment> assignments = assignmentService
                 .getListOfAssignments(Env.COMPETITION, competition.getId());

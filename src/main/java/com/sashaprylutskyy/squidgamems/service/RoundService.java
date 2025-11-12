@@ -73,7 +73,7 @@ public class RoundService {
     public RoundListResponseDTO addRounds(RoundRequestDTO dto) {
         Competition competition = competitionService.getById(dto.getCompetitionId());
         if (competition.getStatus() == CompetitionRoundStatus.PENDING ||
-            competition.getStatus() == CompetitionRoundStatus.READY) {
+            competition.getStatus() == CompetitionRoundStatus.FUNDED) {
 
             List<Game> games = gameService.getGamesByIds(dto.getGameIds());
             List<Round> rounds = roundMapper.toEntityList(competition, games);
@@ -81,15 +81,15 @@ public class RoundService {
 
             return roundMapper.toListResponseDTO(dto.getCompetitionId(), rounds);
         } else {
-            throw new RuntimeException("Failed to add rounds: competition isn't in a PENDING or READY status");
+            throw new RuntimeException("Failed to add rounds: competition isn't in a PENDING or FUNDED status");
         }
     }
 
     @Transactional
     public RoundResponseDTO startNextRound(Long competitionId) {
         Competition competition = competitionService.getById(competitionId);
-        if (competition.getStatus() != CompetitionRoundStatus.READY) {
-            throw new RuntimeException("Failed to start a next round: competition isn't READY.");
+        if (competition.getStatus() != CompetitionRoundStatus.ACTIVE) {
+            throw new RuntimeException("Failed to start a next round: competition isn't activated (ACTIVE).");
         }
 
         Long currentRoundId = competition.getCurrentRoundId();

@@ -2,7 +2,7 @@ package com.sashaprylutskyy.squidgamems.model.enums;
 
 public enum CompetitionRoundStatus {
     PENDING(),
-    READY(),
+    FUNDED(),
     ACTIVE(),
     CANCELED(),
     COMPLETED(),
