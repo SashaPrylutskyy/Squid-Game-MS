@@ -63,8 +63,8 @@ public class TransactionService {
             return;
         }
 
-        long currentContributions = transactionRepo.countByCompetitionAndTransactionType(
-                competition, TransactionType.DEPOSIT);
+        long currentContributions = transactionRepo.getTotalAmountByCompetitionIdAndType(
+                competition.getId(), TransactionType.DEPOSIT);
 
         if (currentContributions >= minVipContributions) {
             competitionService.updateCompetitionStatus(

@@ -7,9 +7,11 @@ import com.sashaprylutskyy.squidgamems.model.User;
 import com.sashaprylutskyy.squidgamems.model.dto.competition.CompetitionResponseDTO;
 import com.sashaprylutskyy.squidgamems.model.enums.CompetitionRoundStatus;
 import com.sashaprylutskyy.squidgamems.model.enums.Env;
+import com.sashaprylutskyy.squidgamems.model.enums.TransactionType;
 import com.sashaprylutskyy.squidgamems.model.mapper.CompetitionMapper;
 import com.sashaprylutskyy.squidgamems.repository.CompetitionRepo;
 import com.sashaprylutskyy.squidgamems.repository.RoundRepo;
+import com.sashaprylutskyy.squidgamems.repository.TransactionRepo;
 import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +22,7 @@ import java.util.List;
 @Service
 public class CompetitionService {
 
+    private final TransactionRepo transactionRepo;
     @Value("${min-players}")
     private int minPlayers;
 
@@ -30,11 +33,12 @@ public class CompetitionService {
 
 
     public CompetitionService(CompetitionRepo competitionRepo, AssignmentService assignmentService,
-                              CompetitionMapper competitionMapper, RoundRepo roundRepo) {
+                              CompetitionMapper competitionMapper, RoundRepo roundRepo, TransactionRepo transactionRepo) {
         this.competitionRepo = competitionRepo;
         this.assignmentService = assignmentService;
         this.competitionMapper = competitionMapper;
         this.roundRepo = roundRepo;
+        this.transactionRepo = transactionRepo;
     }
 
     public Competition getById(Long id) {
