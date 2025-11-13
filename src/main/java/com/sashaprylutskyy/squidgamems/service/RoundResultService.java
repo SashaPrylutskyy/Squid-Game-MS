@@ -18,7 +18,6 @@ import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,7 +94,11 @@ public class RoundResultService {
 
         List<User> usersToUpdate = new ArrayList<>();
 
-        List<RoundResult> rrs = roundResultRepo.findAllBy(dto.getRoundId(), dto.getPlayerIds());
+        List<RoundResult> rrs = roundResultRepo.findAllBy(
+                dto.getRoundId(),
+                dto.getPlayerIds(),
+                UserStatus.TIMEOUT
+        );
         for (RoundResult rr : rrs) {
             rr.setConfirmedBy(principal);
             rr.setConfirmedAt(now);
@@ -140,7 +143,7 @@ public class RoundResultService {
 
         List<RoundResult> rrsToSave = new ArrayList<>(playersToEliminate.size());
         for (User player : playersToEliminate) {
-            RoundResult rr = new RoundResult(round, player, UserStatus.ELIMINATED, now, null); //вожливо все ж призначати статус TIMEOUT.
+            RoundResult rr = new RoundResult(round, player, UserStatus.TIMEOUT, now, null);
             rrsToSave.add(rr);
             rr.getUser().setStatus(UserStatus.ELIMINATED);
         }
