@@ -111,4 +111,12 @@ public class JobOfferService {
         return jobOfferMapper.toSummaryDTOList(jobOffers);
     }
 
+    public List<JobOfferSummaryDTO> getStaff() {
+        User principal = userService.getPrincipal();
+        Assignment lobby = assignmentService.getAssignment_Lobby(principal);
+
+        List<JobOffer> jobOffers = jobOfferRepo
+                .findAllByLobbyIdAndOfferStatus(lobby.getEnvId(), JobOfferStatus.ACCEPTED);
+        return jobOfferMapper.toSummaryDTOList(jobOffers);
+    }
 }

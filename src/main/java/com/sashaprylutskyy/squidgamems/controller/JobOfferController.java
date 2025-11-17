@@ -40,9 +40,15 @@ public class JobOfferController {
 
     @GetMapping
     @Secured({"ROLE_HOST", "ROLE_FRONTMAN", "ROLE_MANAGER", "ROLE_THE_OFFICER"})
-    public ResponseEntity<List<JobOfferSummaryDTO>> getAllJobOffers () { //current lobby
+    public ResponseEntity<List<JobOfferSummaryDTO>> getAllJobOffers() { //current lobby
         List<JobOfferSummaryDTO> response = jobOfferService.getAll();
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/staff")
+    @Secured({"ROLE_HOST", "ROLE_FRONTMAN", "ROLE_MANAGER", "ROLE_THE_OFFICER"})
+    public ResponseEntity<List<JobOfferSummaryDTO>> getStaff() { //current lobby
+        List<JobOfferSummaryDTO> response = jobOfferService.getStaff();
+        return ResponseEntity.ok(response);
+    }
 }
