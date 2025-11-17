@@ -7,12 +7,16 @@ import com.sashaprylutskyy.squidgamems.model.dto.game.GameSummaryDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.user.UserSummaryDTO;
 import org.mapstruct.Mapper;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface GameMapper {
 
     Game toEntity(GameRequestDTO dto);
 
     GameSummaryDTO toSummaryDTO(Game game);
+
+    List<GameSummaryDTO> toSummaryDTOList(List<Game> games);
 
     UserSummaryDTO userEntityToSummaryDTO(User user);
 

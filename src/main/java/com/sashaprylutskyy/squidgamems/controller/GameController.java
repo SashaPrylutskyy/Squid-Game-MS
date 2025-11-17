@@ -7,10 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/game")
@@ -20,6 +19,13 @@ public class GameController {
 
     public GameController(GameService gameService) {
         this.gameService = gameService;
+    }
+
+    @GetMapping
+    @Secured({"ROLE_HOST", "ROLE_FRONTMAN"})
+    public ResponseEntity<List<GameSummaryDTO>> getAllGames() {
+        List<GameSummaryDTO> games = gameService.getAllGames();
+        return ResponseEntity.ok(games);
     }
 
     @PostMapping

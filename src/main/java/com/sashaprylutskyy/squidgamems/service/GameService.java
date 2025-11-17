@@ -39,4 +39,9 @@ public class GameService {
     public List<Game> getGamesByIds(List<Long> ids) {
         return gameRepo.findAllByIdIn(ids);
     }
+
+    public List<GameSummaryDTO> getAllGames() {
+        List<Game> games = gameRepo.findAll();
+        return gameMapper.toSummaryDTOList(games);
+    }
 }
