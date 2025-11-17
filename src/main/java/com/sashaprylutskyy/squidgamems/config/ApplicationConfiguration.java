@@ -13,6 +13,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 public class ApplicationConfiguration {
@@ -48,6 +51,18 @@ public class ApplicationConfiguration {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true); // Дозволяємо credentials (наприклад, cookies чи Authorization header)
+        config.addAllowedOrigin("http://localhost:3000"); // Точно вказуємо фронтенд
+        config.addAllowedHeader("*"); // Дозволяємо всі заголовки
+        config.addAllowedMethod("*"); // Дозволяємо всі методи (GET, POST тощо)
+        source.registerCorsConfiguration("/**", config); // Застосовуємо до всіх шляхів
+        return source;
     }
 
 }

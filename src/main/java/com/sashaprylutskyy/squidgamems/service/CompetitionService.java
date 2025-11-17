@@ -15,6 +15,9 @@ import com.sashaprylutskyy.squidgamems.repository.TransactionRepo;
 import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,7 +25,6 @@ import java.util.List;
 @Service
 public class CompetitionService {
 
-    private final TransactionRepo transactionRepo;
     @Value("${min-players}")
     private int minPlayers;
 
@@ -33,17 +35,33 @@ public class CompetitionService {
 
 
     public CompetitionService(CompetitionRepo competitionRepo, AssignmentService assignmentService,
-                              CompetitionMapper competitionMapper, RoundRepo roundRepo, TransactionRepo transactionRepo) {
+                              CompetitionMapper competitionMapper, RoundRepo roundRepo) {
         this.competitionRepo = competitionRepo;
         this.assignmentService = assignmentService;
         this.competitionMapper = competitionMapper;
         this.roundRepo = roundRepo;
-        this.transactionRepo = transactionRepo;
+    }
+
+    public User getPrincipal() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() ||
+                !(authentication.getPrincipal() instanceof UserDetails)) {
+            throw new NullPointerException("User is not authenticated.");
+        }
+
+        return (User) authentication.getPrincipal();
     }
 
     public Competition getById(Long id) {
         return competitionRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Competition No.%d not found".formatted(id)));
+    }
+
+    public List<CompetitionResponseDTO> getCompetitions() {
+        User principal = getPrincipal();
+        Assignment lobby = assignmentService.getAssignment_Lobby(principal);
+        List<Competition> competitions = competitionRepo.findAllByLobbyId(lobby.getEnvId());
+        return competitionMapper.toResponseDTOList(competitions);
     }
 
     @Transactional

@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public class CompetitionResponseDTO {
 
-    private UUID uuid;
+    private Long id;
     private String title;
     private Long lobbyId;
     private CompetitionRoundStatus status;
@@ -19,12 +19,12 @@ public class CompetitionResponseDTO {
 
     }
 
-    public UUID getUuid() {
-        return uuid;
+    public Long getId() {
+        return id;
     }
 
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getTitle() {

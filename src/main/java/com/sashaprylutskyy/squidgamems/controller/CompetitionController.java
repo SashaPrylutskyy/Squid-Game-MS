@@ -27,6 +27,13 @@ public class CompetitionController {
         this.userService = userService;
     }
 
+    @GetMapping
+    @Secured({"ROLE_HOST", "ROLE_FRONTMAN"})
+    public ResponseEntity<List<CompetitionResponseDTO>> getMyCompetitions() {
+        List<CompetitionResponseDTO> response = competitionService.getCompetitions();
+        return ResponseEntity.ok(response);
+    }
+
     @PatchMapping("/{competitionId}/start")
     @Secured({"ROLE_HOST", "ROLE_FRONTMAN"})
     public ResponseEntity<CompetitionResponseDTO> startCompetition(@PathVariable Long competitionId) {
