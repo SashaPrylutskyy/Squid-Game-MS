@@ -11,6 +11,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -35,6 +36,13 @@ public class JobOfferController {
                                                              @RequestBody @Validated JobOfferRequestUserDTO dto) {
         JobOfferSummaryDTO jobOfferSummary = jobOfferService.acceptJobOffer(token, dto);
         return new ResponseEntity<>(jobOfferSummary, HttpStatus.ACCEPTED);
+    }
+
+    @GetMapping
+    @Secured({"ROLE_HOST", "ROLE_FRONTMAN", "ROLE_MANAGER", "ROLE_THE_OFFICER"})
+    public ResponseEntity<List<JobOfferSummaryDTO>> getAllJobOffers () { //current lobby
+        List<JobOfferSummaryDTO> response = jobOfferService.getAll();
+        return ResponseEntity.ok(response);
     }
 
 }

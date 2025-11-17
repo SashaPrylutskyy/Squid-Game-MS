@@ -19,6 +19,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -101,4 +102,13 @@ public class JobOfferService {
 
         return jobOfferMapper.toSummaryDTO(offer);
     }
+
+    public List<JobOfferSummaryDTO> getAll() {
+        User principal = userService.getPrincipal();
+        Assignment lobby = assignmentService.getAssignment_Lobby(principal);
+
+        List<JobOffer> jobOffers = jobOfferRepo.findAllByLobbyId(lobby.getEnvId());
+        return jobOfferMapper.toSummaryDTOList(jobOffers);
+    }
+
 }
