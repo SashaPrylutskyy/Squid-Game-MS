@@ -57,6 +57,11 @@ public class CompetitionService {
                 .orElseThrow(() -> new RuntimeException("Competition No.%d not found".formatted(id)));
     }
 
+    public Competition getActiveByLobbyId(Long id) {
+        return competitionRepo.findActiveByLobbyId(id)
+                .orElseThrow(() -> new RuntimeException("Competition not found"));
+    }
+
     public List<CompetitionResponseDTO> getCompetitions() {
         User principal = getPrincipal();
         Assignment lobby = assignmentService.getAssignment_Lobby(principal);

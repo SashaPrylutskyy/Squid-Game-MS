@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface RoundRepo extends JpaRepository<Round, Long> {
 
-    @Query( """
+    @Query("""
             SELECT r FROM Round r
             WHERE r.competition.id = :competitionId
                 AND r.startedAt IS NULL
@@ -23,4 +23,7 @@ public interface RoundRepo extends JpaRepository<Round, Long> {
     Optional<Round> findByIdAndCompetition_Id(Long id, Long competitionId);
 
     List<Round> findAllByCompetitionId(Long competitionId);
+
+    @Query("SELECT r FROM Round r WHERE r.competition.id = :compId AND r.status = 'ACTIVE'")
+    Optional<Round> findActiveRoundByCompetitionId(@Param("compId") Long compId);
 }

@@ -1,6 +1,7 @@
 package com.sashaprylutskyy.squidgamems.controller;
 
 import com.sashaprylutskyy.squidgamems.model.dto.user.UserSummaryDTO;
+import com.sashaprylutskyy.squidgamems.model.dto.user.WorkerAssignmentResponseDTO;
 import com.sashaprylutskyy.squidgamems.model.enums.Role;
 import com.sashaprylutskyy.squidgamems.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +31,13 @@ public class UserController {
     ) {
         List<UserSummaryDTO> users = userService.getUsersByRole(role, isAssigned);
         return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/worker/assignment")
+    @Secured({"ROLE_WORKER", "ROLE_FRONTMAN"})
+    public ResponseEntity<WorkerAssignmentResponseDTO> getWorkerAssignment() {
+        WorkerAssignmentResponseDTO response = userService.getWorkerAssignment();
+        return ResponseEntity.ok(response);
     }
 
 }

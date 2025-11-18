@@ -1,12 +1,10 @@
 package com.sashaprylutskyy.squidgamems.service;
 
-import com.sashaprylutskyy.squidgamems.model.Assignment;
-import com.sashaprylutskyy.squidgamems.model.Competition;
-import com.sashaprylutskyy.squidgamems.model.RefCode;
-import com.sashaprylutskyy.squidgamems.model.User;
+import com.sashaprylutskyy.squidgamems.model.*;
 import com.sashaprylutskyy.squidgamems.model.dto.assignment.AssignmentRequestPlayersDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.assignment.AssignmentResponsePlayersDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.refCode.RefCodeSummaryDTO;
+import com.sashaprylutskyy.squidgamems.model.dto.round.CurrentRoundDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.user.*;
 import com.sashaprylutskyy.squidgamems.model.enums.Env;
 import com.sashaprylutskyy.squidgamems.model.enums.Role;
@@ -14,8 +12,10 @@ import com.sashaprylutskyy.squidgamems.model.enums.Sex;
 import com.sashaprylutskyy.squidgamems.model.enums.UserStatus;
 import com.sashaprylutskyy.squidgamems.model.mapper.RefCodeMapper;
 import com.sashaprylutskyy.squidgamems.model.mapper.UserMapper;
+import com.sashaprylutskyy.squidgamems.repository.RoundRepo;
 import com.sashaprylutskyy.squidgamems.repository.UserRepository;
 import com.sashaprylutskyy.squidgamems.security.JwtService;
+import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
@@ -40,12 +40,13 @@ public class UserService {
     private final RefCodeMapper refCodeMapper;
     private final AssignmentService assignmentService;
     private final CompetitionService competitionService;
+    private final RoundRepo roundRepo;
 
 
     public UserService(UserRepository userRepo, JwtService jwtService,
                        PasswordEncoder encoder, UserMapper userMapper,
                        RefCodeService refCodeService, RefCodeMapper refCodeMapper,
-                       AssignmentService assignmentService, CompetitionService competitionService) {
+                       AssignmentService assignmentService, CompetitionService competitionService, RoundRepo roundRepo) {
         this.userRepo = userRepo;
         this.jwtService = jwtService;
         this.encoder = encoder;
@@ -54,6 +55,7 @@ public class UserService {
         this.refCodeMapper = refCodeMapper;
         this.assignmentService = assignmentService;
         this.competitionService = competitionService;
+        this.roundRepo = roundRepo;
     }
 
     public User getPrincipal() {
@@ -153,26 +155,47 @@ public class UserService {
     public List<UserSummaryDTO> getUsersByRole(Role role, Boolean isAssigned) {
         User principal = getPrincipal();
 
-        // 1. Отримуємо ID лобі
         Assignment lobbyAssignment = assignmentService.getAssignment_Lobby(principal);
         Long lobbyId = lobbyAssignment.getEnvId();
 
         List<User> users;
 
-        // 2. Використовуємо ефективні SQL запити
         if (isAssigned == null) {
-            // Повернути всіх живих гравців у цьому лобі
             users = userRepo.findAllPlayersInLobby(lobbyId, role, UserStatus.ALIVE);
-        } else if (Boolean.FALSE.equals(isAssigned)) {
-            // Повернути ТІЛЬКИ вільних (хто не в змаганні)
-            // Сюди потраплять і ті, хто грав раніше, але змагання закінчилось
+        } else if (!isAssigned) {
             users = userRepo.findAvailablePlayersInLobby(lobbyId, role, UserStatus.ALIVE);
         } else {
-            // Повернути ТІЛЬКИ тих, хто зараз у змаганні
             users = userRepo.findAssignedPlayersInLobby(lobbyId, role, UserStatus.ALIVE);
         }
-
-        // 3. Використовуємо новий метод маппера
         return userMapper.mapUsersToSummaryDTOs(users);
+    }
+
+    public WorkerAssignmentResponseDTO getWorkerAssignment() {
+        User worker = getPrincipal();
+
+        Assignment lobby = assignmentService.getAssignment_Lobby(worker);
+        Competition currentCompetition = competitionService.getActiveByLobbyId(lobby.getEnvId());
+
+        if (currentCompetition.getCurrentRoundId() == null) {
+            throw new RuntimeException("There is no active round yet.");
+        }
+
+        Round currentRound = roundRepo.findById(currentCompetition.getCurrentRoundId())
+                .orElseThrow(() -> new NoResultException(
+                        "Round No.%d is not found.".formatted(currentCompetition.getCurrentRoundId()))
+                );
+
+        CurrentRoundDTO roundDTO = new CurrentRoundDTO(
+                currentRound.getId(),
+                currentCompetition.getId(),
+                currentRound.getGame().getGameTitle()
+        );
+
+        List<PlayerReportDTO> playersToReport = userRepo.findPlayersWithRoundStatus(
+                currentCompetition.getId(),
+                currentRound.getId()
+        );
+
+        return new WorkerAssignmentResponseDTO(roundDTO, playersToReport);
     }
 }

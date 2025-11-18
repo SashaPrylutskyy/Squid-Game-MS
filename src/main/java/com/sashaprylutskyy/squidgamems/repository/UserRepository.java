@@ -1,7 +1,7 @@
 package com.sashaprylutskyy.squidgamems.repository;
 
 import com.sashaprylutskyy.squidgamems.model.User;
-import com.sashaprylutskyy.squidgamems.model.enums.Env;
+import com.sashaprylutskyy.squidgamems.model.dto.user.PlayerReportDTO;
 import com.sashaprylutskyy.squidgamems.model.enums.Role;
 import com.sashaprylutskyy.squidgamems.model.enums.UserStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,11 +22,30 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // --- ✨ НОВІ МЕТОДИ ---
 
     /**
-     * Знаходить "вільних" гравців:
-     * 1. Прикріплені до конкретного Лобі.
-     * 2. Живі.
-     * 3. НЕ мають активного запису в Assignment з Env.COMPETITION.
+     * Цей запит витягує гравців та їхній статус у поточному раунді.
      */
+    @Query("""
+            SELECT new com.sashaprylutskyy.squidgamems.model.dto.user.PlayerReportDTO(
+                u.id,
+                u.firstName,
+                u.lastName,
+                rr.status
+            )
+            FROM User u
+            JOIN Assignment a ON a.user = u
+            LEFT JOIN RoundResult rr ON rr.user = u AND rr.round.id = :roundId
+            WHERE a.env = 'COMPETITION'
+              AND a.envId = :competitionId
+              AND u.role = 'PLAYER'
+              AND u.status = 'ALIVE'
+            ORDER BY u.lastName, u.firstName
+            """)
+    List<PlayerReportDTO> findPlayersWithRoundStatus(
+            @Param("competitionId") Long competitionId,
+            @Param("roundId") Long roundId
+    );
+
+    // Для попереднього функціоналу (фільтрація вільних гравців)
     @Query("""
             SELECT u FROM User u
             JOIN Assignment lobbyA ON lobbyA.user = u
@@ -39,15 +58,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
                   WHERE compA.env = 'COMPETITION'
               )
             """)
-    List<User> findAvailablePlayersInLobby(
-            @Param("lobbyId") Long lobbyId,
-            @Param("role") Role role,
-            @Param("status") UserStatus status
-    );
+    List<User> findAvailablePlayersInLobby(@Param("lobbyId") Long lobbyId, @Param("role") Role role, @Param("status") UserStatus status);
 
-    /**
-     * Знаходить гравців, які вже беруть участь у змаганні.
-     */
     @Query("""
             SELECT u FROM User u
             JOIN Assignment lobbyA ON lobbyA.user = u
@@ -60,15 +72,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
                   WHERE compA.env = 'COMPETITION'
               )
             """)
-    List<User> findAssignedPlayersInLobby(
-            @Param("lobbyId") Long lobbyId,
-            @Param("role") Role role,
-            @Param("status") UserStatus status
-    );
+    List<User> findAssignedPlayersInLobby(@Param("lobbyId") Long lobbyId, @Param("role") Role role, @Param("status") UserStatus status);
 
-    /**
-     * Отримати всіх живих гравців у лобі (незалежно від того, зайняті вони чи ні)
-     */
     @Query("""
             SELECT u FROM User u
             JOIN Assignment lobbyA ON lobbyA.user = u
@@ -77,9 +82,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
               AND lobbyA.env = 'LOBBY'
               AND lobbyA.envId = :lobbyId
             """)
-    List<User> findAllPlayersInLobby(
-            @Param("lobbyId") Long lobbyId,
-            @Param("role") Role role,
-            @Param("status") UserStatus status
-    );
+    List<User> findAllPlayersInLobby(@Param("lobbyId") Long lobbyId, @Param("role") Role role, @Param("status") UserStatus status);
 }
