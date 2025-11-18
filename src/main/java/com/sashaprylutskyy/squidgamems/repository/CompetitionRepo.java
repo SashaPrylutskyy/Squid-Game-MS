@@ -1,6 +1,7 @@
 package com.sashaprylutskyy.squidgamems.repository;
 
 import com.sashaprylutskyy.squidgamems.model.Competition;
+import com.sashaprylutskyy.squidgamems.model.enums.CompetitionRoundStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,4 +21,6 @@ public interface CompetitionRepo extends JpaRepository<Competition, Long> {
             AND c.status = 'ACTIVE'
             """)
     Optional<Competition> findActiveByLobbyId(@Param("lobbyId") Long lobbyId);
+
+    List<Competition> findAllByStatusIn(List<CompetitionRoundStatus> statuses);
 }

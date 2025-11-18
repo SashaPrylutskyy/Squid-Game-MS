@@ -30,7 +30,7 @@ public class CompetitionController {
     @GetMapping("/list-all")
     @Secured({"ROLE_VIP"})
     public ResponseEntity<List<CompetitionResponseDTO>> getAllCompetitions() {
-        List<CompetitionResponseDTO> response = competitionService.getAllCompetitions();
+        List<CompetitionResponseDTO> response = competitionService.getAllCompetitionsSelective();
         return ResponseEntity.ok(response);
     }
 

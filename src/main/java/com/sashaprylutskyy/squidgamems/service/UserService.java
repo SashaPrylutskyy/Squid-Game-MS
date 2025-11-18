@@ -199,6 +199,7 @@ public class UserService {
         return new WorkerAssignmentResponseDTO(roundDTO, playersToReport);
     }
 
+    //todo AI написав якусь бургу, яку варто дуууже пристально перевірити, бо відразу видно хуйню
     public PlayerStatusResponseDTO getPlayerStatus() {
         User player = getPrincipal();
 

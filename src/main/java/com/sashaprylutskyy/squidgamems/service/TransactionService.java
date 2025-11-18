@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class TransactionService {
 
@@ -72,6 +74,15 @@ public class TransactionService {
                     CompetitionRoundStatus.FUNDED
             );
         }
+    }
+
+    public List<TransactionResponseDTO> getMyDeposits() {
+        User vip = userService.getPrincipal();
+
+        List<Transaction> transactions = transactionRepo
+                .findAllBySenderAndTransactionTypeOrderByCreatedAtDesc(vip, TransactionType.DEPOSIT);
+
+        return transactionMapper.toResponseDTOList(transactions);
     }
 
 }

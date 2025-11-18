@@ -7,11 +7,9 @@ import com.sashaprylutskyy.squidgamems.model.User;
 import com.sashaprylutskyy.squidgamems.model.dto.competition.CompetitionResponseDTO;
 import com.sashaprylutskyy.squidgamems.model.enums.CompetitionRoundStatus;
 import com.sashaprylutskyy.squidgamems.model.enums.Env;
-import com.sashaprylutskyy.squidgamems.model.enums.TransactionType;
 import com.sashaprylutskyy.squidgamems.model.mapper.CompetitionMapper;
 import com.sashaprylutskyy.squidgamems.repository.CompetitionRepo;
 import com.sashaprylutskyy.squidgamems.repository.RoundRepo;
-import com.sashaprylutskyy.squidgamems.repository.TransactionRepo;
 import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
@@ -57,8 +55,13 @@ public class CompetitionService {
                 .orElseThrow(() -> new RuntimeException("Competition No.%d not found".formatted(id)));
     }
 
-    public List<CompetitionResponseDTO> getAllCompetitions() {
-        List<Competition> competitions = competitionRepo.findAll();
+    public List<CompetitionResponseDTO> getAllCompetitionsSelective() {
+        List<CompetitionRoundStatus> activeStatuses = List.of(
+                CompetitionRoundStatus.PENDING,
+                CompetitionRoundStatus.FUNDED
+        );
+
+        List<Competition> competitions = competitionRepo.findAllByStatusIn(activeStatuses);
         return competitionMapper.toResponseDTOList(competitions);
     }
 
