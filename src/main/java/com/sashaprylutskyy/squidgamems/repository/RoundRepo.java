@@ -21,4 +21,6 @@ public interface RoundRepo extends JpaRepository<Round, Long> {
     List<Round> findNextRounds(@Param("competitionId") Long competitionId);
 
     Optional<Round> findByIdAndCompetition_Id(Long id, Long competitionId);
+
+    List<Round> findAllByCompetitionId(Long competitionId);
 }

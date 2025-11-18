@@ -12,6 +12,8 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/round")
 public class RoundController {
@@ -29,6 +31,13 @@ public class RoundController {
     public ResponseEntity<RoundListResponseDTO> addRounds(@Validated @RequestBody RoundRequestDTO dto) {
         RoundListResponseDTO response = roundService.addRounds(dto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{competitionId}/rounds")
+    @Secured({"ROLE_HOST", "ROLE_FRONTMAN"})
+    public ResponseEntity<List<RoundResponseDTO>> getRounds(@PathVariable Long competitionId) {
+        List<RoundResponseDTO> response = roundService.getRounds(competitionId);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{competitionId}/current_round")

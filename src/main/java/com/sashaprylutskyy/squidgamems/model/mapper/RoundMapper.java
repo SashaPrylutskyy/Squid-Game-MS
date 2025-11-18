@@ -59,6 +59,7 @@ public interface RoundMapper {
 
     @Mappings({
             @Mapping(target = "id", source = "id"),
+            @Mapping(target = "title", source = "game.gameTitle"),
             @Mapping(target = "competitionId", source = "competition.id"),
             @Mapping(target = "roundNumber", source = "roundNumber"),
             @Mapping(target = "gameId", source = "game.id"),
@@ -67,4 +68,6 @@ public interface RoundMapper {
             @Mapping(target = "endedAt", source = "endedAt")
     })
     RoundResponseDTO toResponseDTO(Round round);
+
+    List<RoundResponseDTO> toResponseDTOList(List<Round> rounds);
 }

@@ -5,6 +5,7 @@ import com.sashaprylutskyy.squidgamems.model.enums.CompetitionRoundStatus;
 public class RoundResponseDTO {
 
     private Long id;
+    private String title;
     private Long competitionId;
     private Long gameId;
     private Byte roundNumber;
@@ -22,6 +23,14 @@ public class RoundResponseDTO {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public Long getCompetitionId() {

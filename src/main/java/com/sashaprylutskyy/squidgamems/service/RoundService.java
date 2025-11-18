@@ -146,4 +146,9 @@ public class RoundService {
 
         return roundMapper.toResponseDTO(round);
     }
+
+    public List<RoundResponseDTO> getRounds(Long competitionId) {
+        List<Round> rounds = roundRepo.findAllByCompetitionId(competitionId);
+        return roundMapper.toResponseDTOList(rounds);
+    }
 }
