@@ -27,6 +27,13 @@ public class CompetitionController {
         this.userService = userService;
     }
 
+    @GetMapping("/list-all")
+    @Secured({"ROLE_VIP"})
+    public ResponseEntity<List<CompetitionResponseDTO>> getAllCompetitions() {
+        List<CompetitionResponseDTO> response = competitionService.getAllCompetitions();
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping
     @Secured({"ROLE_HOST", "ROLE_FRONTMAN"})
     public ResponseEntity<List<CompetitionResponseDTO>> getMyCompetitions() {

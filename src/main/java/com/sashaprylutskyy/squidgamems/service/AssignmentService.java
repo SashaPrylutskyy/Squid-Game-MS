@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AssignmentService {
@@ -31,10 +32,18 @@ public class AssignmentService {
         return assignmentRepo.findBy(env, envId, userId);
     }
 
+    public Optional<Assignment> getAssignment_Env_ByType(Env env, User user) {
+        return assignmentRepo.findAssignmentByEnvAndUser(env, user);
+    }
+
     public Assignment getAssignment_Lobby(User user) {
         return assignmentRepo.findAssignmentByEnvAndUser(Env.LOBBY, user)
                 .orElseThrow(() -> new NoResultException
                         ("User %s is not assigned to any lobby.".formatted(user.getEmail())));
+    }
+
+    public java.util.Optional<Assignment> getAssignment_Competition(User user) {
+        return assignmentRepo.findAssignmentByEnvAndUser(Env.COMPETITION, user);
     }
 
     public List<Assignment> getListOfAssignments(Env env, Long envId) {

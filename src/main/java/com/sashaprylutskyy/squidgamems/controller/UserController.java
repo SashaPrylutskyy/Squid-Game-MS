@@ -1,5 +1,6 @@
 package com.sashaprylutskyy.squidgamems.controller;
 
+import com.sashaprylutskyy.squidgamems.model.dto.user.PlayerStatusResponseDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.user.UserSummaryDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.user.WorkerAssignmentResponseDTO;
 import com.sashaprylutskyy.squidgamems.model.enums.Role;
@@ -38,6 +39,12 @@ public class UserController {
     public ResponseEntity<WorkerAssignmentResponseDTO> getWorkerAssignment() {
         WorkerAssignmentResponseDTO response = userService.getWorkerAssignment();
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/player/status")
+    @Secured("ROLE_PLAYER")
+    public ResponseEntity<PlayerStatusResponseDTO> getPlayerStatus() {
+        return ResponseEntity.ok(userService.getPlayerStatus());
     }
 
 }

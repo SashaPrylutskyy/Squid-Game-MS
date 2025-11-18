@@ -6,14 +6,12 @@ import com.sashaprylutskyy.squidgamems.model.dto.assignment.AssignmentResponsePl
 import com.sashaprylutskyy.squidgamems.model.dto.refCode.RefCodeSummaryDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.round.CurrentRoundDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.user.*;
-import com.sashaprylutskyy.squidgamems.model.enums.Env;
-import com.sashaprylutskyy.squidgamems.model.enums.Role;
-import com.sashaprylutskyy.squidgamems.model.enums.Sex;
-import com.sashaprylutskyy.squidgamems.model.enums.UserStatus;
+import com.sashaprylutskyy.squidgamems.model.enums.*;
 import com.sashaprylutskyy.squidgamems.model.mapper.RefCodeMapper;
 import com.sashaprylutskyy.squidgamems.model.mapper.UserMapper;
 import com.sashaprylutskyy.squidgamems.repository.RoundRepo;
 import com.sashaprylutskyy.squidgamems.repository.UserRepository;
+import com.sashaprylutskyy.squidgamems.repository.VoteRepo;
 import com.sashaprylutskyy.squidgamems.security.JwtService;
 import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
@@ -41,12 +39,13 @@ public class UserService {
     private final AssignmentService assignmentService;
     private final CompetitionService competitionService;
     private final RoundRepo roundRepo;
+    private final VoteRepo voteRepo;
 
 
     public UserService(UserRepository userRepo, JwtService jwtService,
                        PasswordEncoder encoder, UserMapper userMapper,
                        RefCodeService refCodeService, RefCodeMapper refCodeMapper,
-                       AssignmentService assignmentService, CompetitionService competitionService, RoundRepo roundRepo) {
+                       AssignmentService assignmentService, CompetitionService competitionService, RoundRepo roundRepo, VoteRepo voteRepo) {
         this.userRepo = userRepo;
         this.jwtService = jwtService;
         this.encoder = encoder;
@@ -56,6 +55,7 @@ public class UserService {
         this.assignmentService = assignmentService;
         this.competitionService = competitionService;
         this.roundRepo = roundRepo;
+        this.voteRepo = voteRepo;
     }
 
     public User getPrincipal() {
@@ -197,5 +197,83 @@ public class UserService {
         );
 
         return new WorkerAssignmentResponseDTO(roundDTO, playersToReport);
+    }
+
+    public PlayerStatusResponseDTO getPlayerStatus() {
+        User player = getPrincipal();
+
+        // 1. Перевіряємо, чи є гравець у змаганні (Assignment у Env.COMPETITION)
+        // Використовуємо findAssignmentByEnvAndUser з AssignmentRepo (через сервіс або напряму, якщо метод публічний)
+        // Припускаю, що в AssignmentService треба додати метод для цього, або використати існуючий.
+        // Для чистоти припустимо, що ми додали метод getAssignment_Competition(player) в AssignmentService
+        // АБО використаємо репозиторій, якщо AssignmentService не має потрібного методу.
+        // ТУТ я використаю логіку "спробувати знайти":
+        Assignment assignment = null;
+        try {
+            // Можна додати цей метод в AssignmentService, або використати існуючі
+            // Наразі використаємо repo через сервіс, якщо там є відповідний метод.
+            // Оскільки в коді AssignmentService немає методу findByEnvAndUser, який повертає Optional публічно,
+            // найкраще додати в AssignmentService метод: public Optional<Assignment> findActiveAssignment(Env env, User user)
+            // Але поки що використаємо обхідний шлях через список:
+//            List<Assignment> activeAssignments = assignmentService.getListOfAssignments(Env.COMPETITION, player.getStatus());
+            // Цей метод (getListOfAssignments) у вас приймає EnvId, це не те.
+
+            // ❗ НАЙКРАЩЕ РІШЕННЯ: Додати в AssignmentService метод:
+             assignmentService.getAssignment_Env_ByType(Env.COMPETITION, player);
+        } catch (Exception e) {
+            // ігноруємо
+        }
+
+        // Щоб код працював з вашим поточним AssignmentService,
+        // давайте припустимо, що ви додасте туди цей метод (див. Крок 4).
+        Assignment compAssignment = assignmentService.getAssignment_Competition(player).orElse(null);
+
+        if (compAssignment == null) {
+            return PlayerStatusResponseDTO.notInGame();
+        }
+
+        Competition competition = competitionService.getById(compAssignment.getEnvId());
+
+        // Якщо змагання вже закінчилось
+        if (competition.getStatus() == CompetitionRoundStatus.COMPLETED ||
+                competition.getStatus() == CompetitionRoundStatus.CANCELED) {
+            return PlayerStatusResponseDTO.notInGame();
+        }
+
+        // 2. Формуємо відповідь
+        PlayerStatusResponseDTO response = new PlayerStatusResponseDTO();
+
+        response.setCompetition(new PlayerCompetitionDTO(
+                competition.getId(),
+                competition.getTitle()
+        ));
+
+        response.setStatusInCompetition(player.getStatus());
+
+        // 3. Інформація про раунд
+        if (competition.getCurrentRoundId() != null) {
+            Round currentRound = roundRepo.findById(competition.getCurrentRoundId()).orElse(null);
+
+            if (currentRound != null) {
+                response.setCurrentRound(new PlayerRoundDTO(
+                        currentRound.getId(),
+                        currentRound.getGame().getGameTitle(), // Переконайтеся, що FetchType дозволяє це
+                        currentRound.getStatus()
+                ));
+
+                // 4. Логіка голосування
+                boolean isRoundActive = currentRound.getStatus() == CompetitionRoundStatus.ACTIVE;
+                boolean hasVoted = voteRepo.existsByPlayerAndRound(player, currentRound);
+
+                // Визначаємо, чи можна голосувати (тільки якщо раунд активний і ще не голосував)
+                // Але у відповіді DTO ми просто повертаємо стан
+                response.setActiveVote(new PlayerVoteDTO(
+                        isRoundActive, // canVote (true, якщо йде гра/голосування)
+                        hasVoted
+                ));
+            }
+        }
+
+        return response;
     }
 }

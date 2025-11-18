@@ -57,6 +57,11 @@ public class CompetitionService {
                 .orElseThrow(() -> new RuntimeException("Competition No.%d not found".formatted(id)));
     }
 
+    public List<CompetitionResponseDTO> getAllCompetitions() {
+        List<Competition> competitions = competitionRepo.findAll();
+        return competitionMapper.toResponseDTOList(competitions);
+    }
+
     public Competition getActiveByLobbyId(Long id) {
         return competitionRepo.findActiveByLobbyId(id)
                 .orElseThrow(() -> new RuntimeException("Competition not found"));
