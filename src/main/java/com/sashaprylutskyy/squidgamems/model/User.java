@@ -50,7 +50,7 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 25)
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 

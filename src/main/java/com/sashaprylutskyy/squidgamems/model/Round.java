@@ -22,7 +22,7 @@ public class Round {
     @Column(nullable = false)
     private Byte roundNumber;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 25)
     @Enumerated(EnumType.STRING)
     private CompetitionRoundStatus status;
 

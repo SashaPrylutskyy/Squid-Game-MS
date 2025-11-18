@@ -26,6 +26,7 @@ public class RoundResult {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(nullable = false, length = 25)
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 

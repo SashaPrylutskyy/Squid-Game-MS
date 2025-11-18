@@ -116,33 +116,17 @@ public class RoundService {
 
         competition.setCurrentRoundId(round.getId());
 
-        timerService.runAfterDelay(() -> startVotingPhase(round.getId()),
-                60 * 1000 * round.getGame().getGameDuration());
-//        timerService.runAfterDelay(() -> endRound(round, competition), This is just for testing purposes.
-//                60 * 1000);
+//        timerService.runAfterDelay(() -> endRound(round, competition),
+//                60 * 1000 * round.getGame().getGameDuration());
+        timerService.runAfterDelay(() -> endRound(round, competition), //This is just for testing purposes.
+                60 * 1000);
         return roundMapper.toResponseDTO(round);
-    }
-
-    @Transactional
-    public void startVotingPhase(Long roundId) {
-        Round round = getById(roundId);
-        if (round.getStatus() != CompetitionRoundStatus.ACTIVE) {
-            return;
-        }
-
-        round.setStatus(CompetitionRoundStatus.VOTING);
-        roundRepo.save(round);
-
-        Competition competition = round.getCompetition();
-        timerService.runAfterDelay(
-                () -> endRound(round, competition),
-                votingDuration);
     }
 
     @Transactional
     protected Round endRound(Round round, Competition currentCompetition) {
         round.setEndedAt(System.currentTimeMillis());
-        round.setStatus(CompetitionRoundStatus.COMPLETED);
+        round.setStatus(CompetitionRoundStatus.VOTING);
 
         roundResultService.setPlayersStatusTimeout(currentCompetition.getId(), round);
 

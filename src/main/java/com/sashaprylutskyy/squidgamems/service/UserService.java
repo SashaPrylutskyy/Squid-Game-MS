@@ -203,73 +203,61 @@ public class UserService {
     public PlayerStatusResponseDTO getPlayerStatus() {
         User player = getPrincipal();
 
-        // 1. Перевіряємо, чи є гравець у змаганні (Assignment у Env.COMPETITION)
-        // Використовуємо findAssignmentByEnvAndUser з AssignmentRepo (через сервіс або напряму, якщо метод публічний)
-        // Припускаю, що в AssignmentService треба додати метод для цього, або використати існуючий.
-        // Для чистоти припустимо, що ми додали метод getAssignment_Competition(player) в AssignmentService
-        // АБО використаємо репозиторій, якщо AssignmentService не має потрібного методу.
-        // ТУТ я використаю логіку "спробувати знайти":
-        Assignment assignment = null;
-        try {
-            // Можна додати цей метод в AssignmentService, або використати існуючі
-            // Наразі використаємо repo через сервіс, якщо там є відповідний метод.
-            // Оскільки в коді AssignmentService немає методу findByEnvAndUser, який повертає Optional публічно,
-            // найкраще додати в AssignmentService метод: public Optional<Assignment> findActiveAssignment(Env env, User user)
-            // Але поки що використаємо обхідний шлях через список:
-//            List<Assignment> activeAssignments = assignmentService.getListOfAssignments(Env.COMPETITION, player.getStatus());
-            // Цей метод (getListOfAssignments) у вас приймає EnvId, це не те.
+        // 1. Отримуємо призначення (як ми робили раніше)
+        Assignment assignment = assignmentService
+                .getAssignment_Env_ByType(Env.COMPETITION, player)
+                .orElse(null);
 
-            // ❗ НАЙКРАЩЕ РІШЕННЯ: Додати в AssignmentService метод:
-             assignmentService.getAssignment_Env_ByType(Env.COMPETITION, player);
-        } catch (Exception e) {
-            // ігноруємо
-        }
-
-        // Щоб код працював з вашим поточним AssignmentService,
-        // давайте припустимо, що ви додасте туди цей метод (див. Крок 4).
-        Assignment compAssignment = assignmentService.getAssignment_Competition(player).orElse(null);
-
-        if (compAssignment == null) {
+        if (assignment == null) {
             return PlayerStatusResponseDTO.notInGame();
         }
 
-        Competition competition = competitionService.getById(compAssignment.getEnvId());
+        Competition competition = competitionService.getById(assignment.getEnvId());
 
-        // Якщо змагання вже закінчилось
+        // Перевірка, чи змагання активне
         if (competition.getStatus() == CompetitionRoundStatus.COMPLETED ||
-                competition.getStatus() == CompetitionRoundStatus.CANCELED) {
+                competition.getStatus() == CompetitionRoundStatus.CANCELED ||
+                competition.getStatus() == CompetitionRoundStatus.ARCHIVED) {
             return PlayerStatusResponseDTO.notInGame();
         }
 
-        // 2. Формуємо відповідь
         PlayerStatusResponseDTO response = new PlayerStatusResponseDTO();
 
+        // Заповнюємо Competition DTO
         response.setCompetition(new PlayerCompetitionDTO(
                 competition.getId(),
                 competition.getTitle()
         ));
 
+        // Заповнюємо статус гравця
         response.setStatusInCompetition(player.getStatus());
 
-        // 3. Інформація про раунд
+        // 2. Логіка Раунду та Голосування
         if (competition.getCurrentRoundId() != null) {
             Round currentRound = roundRepo.findById(competition.getCurrentRoundId()).orElse(null);
 
             if (currentRound != null) {
+                // Заповнюємо Round DTO (статус буде ACTIVE або VOTING)
                 response.setCurrentRound(new PlayerRoundDTO(
                         currentRound.getId(),
-                        currentRound.getGame().getGameTitle(), // Переконайтеся, що FetchType дозволяє це
-                        currentRound.getStatus()
+                        currentRound.getGame().getGameTitle(),
+                        currentRound.getStatus() // <-- Тут буде VOTING, коли прийде час
                 ));
 
-                // 4. Логіка голосування
-                boolean isRoundActive = currentRound.getStatus() == CompetitionRoundStatus.ACTIVE;
+                // ✨ ЛОГІКА ГОЛОСУВАННЯ:
+
+                // 1. Чи зараз йде фаза голосування?
+                boolean isVotingPhase = currentRound.getStatus() == CompetitionRoundStatus.VOTING;
+
+                // 2. Чи гравець вже проголосував? (Використовуємо VoteRepo)
                 boolean hasVoted = voteRepo.existsByPlayerAndRound(player, currentRound);
 
-                // Визначаємо, чи можна голосувати (тільки якщо раунд активний і ще не голосував)
-                // Але у відповіді DTO ми просто повертаємо стан
+                // 3. Чи може голосувати? (Тільки якщо йде фаза голосування і ще не голосував)
+                // Додатково: можна перевірити, чи гравець ALIVE (мертві не голосують)
+                boolean canVote = isVotingPhase && !hasVoted && (player.getStatus() == UserStatus.ALIVE);
+
                 response.setActiveVote(new PlayerVoteDTO(
-                        isRoundActive, // canVote (true, якщо йде гра/голосування)
+                        canVote,
                         hasVoted
                 ));
             }
