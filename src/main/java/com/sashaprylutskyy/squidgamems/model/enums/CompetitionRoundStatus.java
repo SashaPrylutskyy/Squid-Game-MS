@@ -6,5 +6,6 @@ public enum CompetitionRoundStatus {
     ACTIVE(),
     CANCELED(),
     COMPLETED(),
-    ARCHIVED()
+    ARCHIVED(),
+    VOTING()
 }
