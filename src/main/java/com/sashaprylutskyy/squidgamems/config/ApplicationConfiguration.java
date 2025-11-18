@@ -58,7 +58,7 @@ public class ApplicationConfiguration {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true); // Дозволяємо credentials (наприклад, cookies чи Authorization header)
-        config.addAllowedOrigin("http://localhost:3000"); // Точно вказуємо фронтенд
+        config.addAllowedOrigin("http://localhost:5173"); // Точно вказуємо фронтенд
         config.addAllowedHeader("*"); // Дозволяємо всі заголовки
         config.addAllowedMethod("*"); // Дозволяємо всі методи (GET, POST тощо)
         source.registerCorsConfiguration("/**", config); // Застосовуємо до всіх шляхів

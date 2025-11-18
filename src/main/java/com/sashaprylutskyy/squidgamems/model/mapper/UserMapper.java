@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 public interface UserMapper {
     UserResponseDTO toResponseDTO(User user);
 
+    List<UserSummaryDTO> mapUsersToSummaryDTOs(List<User> users);
+
     @Mapping(target = "email", ignore = true)
     @Mapping(target = "role", ignore = true)
     @Mapping(target = "balance", ignore = true)

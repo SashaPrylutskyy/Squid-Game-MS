@@ -9,6 +9,7 @@ import com.sashaprylutskyy.squidgamems.model.dto.assignment.AssignmentResponsePl
 import com.sashaprylutskyy.squidgamems.model.dto.refCode.RefCodeSummaryDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.user.*;
 import com.sashaprylutskyy.squidgamems.model.enums.Env;
+import com.sashaprylutskyy.squidgamems.model.enums.Role;
 import com.sashaprylutskyy.squidgamems.model.enums.Sex;
 import com.sashaprylutskyy.squidgamems.model.enums.UserStatus;
 import com.sashaprylutskyy.squidgamems.model.mapper.RefCodeMapper;
@@ -149,4 +150,29 @@ public class UserService {
         }
     }
 
+    public List<UserSummaryDTO> getUsersByRole(Role role, Boolean isAssigned) {
+        User principal = getPrincipal();
+
+        // 1. Отримуємо ID лобі
+        Assignment lobbyAssignment = assignmentService.getAssignment_Lobby(principal);
+        Long lobbyId = lobbyAssignment.getEnvId();
+
+        List<User> users;
+
+        // 2. Використовуємо ефективні SQL запити
+        if (isAssigned == null) {
+            // Повернути всіх живих гравців у цьому лобі
+            users = userRepo.findAllPlayersInLobby(lobbyId, role, UserStatus.ALIVE);
+        } else if (Boolean.FALSE.equals(isAssigned)) {
+            // Повернути ТІЛЬКИ вільних (хто не в змаганні)
+            // Сюди потраплять і ті, хто грав раніше, але змагання закінчилось
+            users = userRepo.findAvailablePlayersInLobby(lobbyId, role, UserStatus.ALIVE);
+        } else {
+            // Повернути ТІЛЬКИ тих, хто зараз у змаганні
+            users = userRepo.findAssignedPlayersInLobby(lobbyId, role, UserStatus.ALIVE);
+        }
+
+        // 3. Використовуємо новий метод маппера
+        return userMapper.mapUsersToSummaryDTOs(users);
+    }
 }
