@@ -110,11 +110,17 @@ public class RoundService {
             }
         }
 
+        Round previousRound = getCurrentRound(competitionId);
+        previousRound.setStatus(CompetitionRoundStatus.COMPLETED);
+
         Round round = getNextRound(competitionId);
         round.setStatus(CompetitionRoundStatus.ACTIVE);
         round.setStartedAt(System.currentTimeMillis());
 
         competition.setCurrentRoundId(round.getId());
+
+        roundRepo.save(previousRound);
+        roundRepo.save(round);
 
 //        timerService.runAfterDelay(() -> endRound(round, competition),
 //                60 * 1000 * round.getGame().getGameDuration());
