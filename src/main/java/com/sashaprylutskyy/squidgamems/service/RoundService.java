@@ -139,10 +139,15 @@ public class RoundService {
     @Transactional
     public RoundResponseDTO endRound(Long competitionId) {
         Competition currentCompetition = competitionService.getById(competitionId);
-        Round round = getCurrentRound(competitionId);
-        round = endRound(round, currentCompetition);
+        if (currentCompetition.getStatus() != CompetitionRoundStatus.ACTIVE) {
+            throw new RuntimeException("Oops! Competition is ended.");
+        }
 
-        roundResultService.setPlayersStatusTimeout(currentCompetition.getId(), round);
+        Round round = getCurrentRound(competitionId);
+        if (round.getStatus() != CompetitionRoundStatus.ACTIVE) {
+            throw new RuntimeException("Oops! Round is ended already.");
+        }
+        round = endRound(round, currentCompetition);
 
         return roundMapper.toResponseDTO(round);
     }
