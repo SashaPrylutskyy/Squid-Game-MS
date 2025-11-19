@@ -28,6 +28,15 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
             @Param("userId") Long userId
     );
 
+    @Query("""
+            SELECT a FROM Assignment a
+            JOIN Competition c ON a.envId = c.id
+            WHERE a.env = 'COMPETITION'
+            AND a.user = :user
+            AND c.status = 'ACTIVE'
+            """)
+    Optional<Assignment> findAssignmentUserInActiveCompetition(@Param("user") User user);
+
     Optional<Assignment> findAssignmentByEnvAndUser(Env env, User user);
 
     @Query("""

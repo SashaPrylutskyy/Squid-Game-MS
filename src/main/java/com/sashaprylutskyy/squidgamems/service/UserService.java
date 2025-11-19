@@ -40,12 +40,14 @@ public class UserService {
     private final CompetitionService competitionService;
     private final RoundRepo roundRepo;
     private final VoteRepo voteRepo;
-
+    private final com.sashaprylutskyy.squidgamems.repository.RoundResultRepo roundResultRepo;
 
     public UserService(UserRepository userRepo, JwtService jwtService,
                        PasswordEncoder encoder, UserMapper userMapper,
                        RefCodeService refCodeService, RefCodeMapper refCodeMapper,
-                       AssignmentService assignmentService, CompetitionService competitionService, RoundRepo roundRepo, VoteRepo voteRepo) {
+                       AssignmentService assignmentService, CompetitionService competitionService,
+                       RoundRepo roundRepo, VoteRepo voteRepo,
+                       com.sashaprylutskyy.squidgamems.repository.RoundResultRepo roundResultRepo) {
         this.userRepo = userRepo;
         this.jwtService = jwtService;
         this.encoder = encoder;
@@ -56,6 +58,7 @@ public class UserService {
         this.competitionService = competitionService;
         this.roundRepo = roundRepo;
         this.voteRepo = voteRepo;
+        this.roundResultRepo = roundResultRepo;
     }
 
     public User getPrincipal() {
@@ -182,28 +185,23 @@ public class UserService {
 
         Round currentRound = roundRepo.findById(currentCompetition.getCurrentRoundId())
                 .orElseThrow(() -> new NoResultException(
-                        "Round No.%d is not found.".formatted(currentCompetition.getCurrentRoundId()))
-                );
+                        "Round No.%d is not found.".formatted(currentCompetition.getCurrentRoundId())));
 
         CurrentRoundDTO roundDTO = new CurrentRoundDTO(
                 currentRound.getId(),
                 currentCompetition.getId(),
-                currentRound.getGame().getGameTitle()
-        );
+                currentRound.getGame().getGameTitle());
 
         List<PlayerReportDTO> playersToReport = userRepo.findPlayersWithRoundStatus(
                 currentCompetition.getId(),
-                currentRound.getId()
-        );
+                currentRound.getId());
 
         return new WorkerAssignmentResponseDTO(roundDTO, playersToReport);
     }
 
-    //todo AI написав якусь бургу, яку варто дуууже пристально перевірити, бо відразу видно хуйню
     public PlayerStatusResponseDTO getPlayerStatus() {
         User player = getPrincipal();
 
-        // 1. Отримуємо призначення (як ми робили раніше)
         Assignment assignment = assignmentService
                 .getAssignment_Env_ByType(Env.COMPETITION, player)
                 .orElse(null);
@@ -214,7 +212,6 @@ public class UserService {
 
         Competition competition = competitionService.getById(assignment.getEnvId());
 
-        // Перевірка, чи змагання активне
         if (competition.getStatus() == CompetitionRoundStatus.COMPLETED ||
                 competition.getStatus() == CompetitionRoundStatus.CANCELED ||
                 competition.getStatus() == CompetitionRoundStatus.ARCHIVED) {
@@ -223,43 +220,31 @@ public class UserService {
 
         PlayerStatusResponseDTO response = new PlayerStatusResponseDTO();
 
-        // Заповнюємо Competition DTO
         response.setCompetition(new PlayerCompetitionDTO(
                 competition.getId(),
-                competition.getTitle()
-        ));
+                competition.getTitle()));
 
-        // Заповнюємо статус гравця
-        response.setStatusInCompetition(player.getStatus());
+        RoundResult latestRoundResult = roundResultRepo.findTopByUserOrderByIdDesc(player).orElse(null);
+        UserStatus statusInCompetition = (latestRoundResult != null) ? latestRoundResult.getStatus()
+                : player.getStatus();
+        response.setStatusInCompetition(statusInCompetition);
 
-        // 2. Логіка Раунду та Голосування
         if (competition.getCurrentRoundId() != null) {
             Round currentRound = roundRepo.findById(competition.getCurrentRoundId()).orElse(null);
 
             if (currentRound != null) {
-                // Заповнюємо Round DTO (статус буде ACTIVE або VOTING)
                 response.setCurrentRound(new PlayerRoundDTO(
                         currentRound.getId(),
                         currentRound.getGame().getGameTitle(),
-                        currentRound.getStatus() // <-- Тут буде VOTING, коли прийде час
-                ));
+                        currentRound.getStatus()));
 
-                // ✨ ЛОГІКА ГОЛОСУВАННЯ:
-
-                // 1. Чи зараз йде фаза голосування?
                 boolean isVotingPhase = currentRound.getStatus() == CompetitionRoundStatus.VOTING;
-
-                // 2. Чи гравець вже проголосував? (Використовуємо VoteRepo)
                 boolean hasVoted = voteRepo.existsByPlayerAndRound(player, currentRound);
-
-                // 3. Чи може голосувати? (Тільки якщо йде фаза голосування і ще не голосував)
-                // Додатково: можна перевірити, чи гравець ALIVE (мертві не голосують)
-                boolean canVote = isVotingPhase && !hasVoted && (player.getStatus() == UserStatus.ALIVE);
+                boolean canVote = isVotingPhase && !hasVoted && (statusInCompetition == UserStatus.PASSED);
 
                 response.setActiveVote(new PlayerVoteDTO(
                         canVote,
-                        hasVoted
-                ));
+                        hasVoted));
             }
         }
 
