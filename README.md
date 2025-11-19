@@ -378,6 +378,13 @@ Assigns a list of players to a competition.
 
 *   **201 Created**
 
+```json
+{
+  "competitionId": 5,
+  "playerIds": [10, 11, 12]
+}
+```
+
 ### 4.2 Remove Players
 Removes a list of players from a competition.
 
@@ -398,6 +405,13 @@ Removes a list of players from a competition.
 **Response**
 
 *   **200 OK**
+
+```json
+{
+  "competitionId": 5,
+  "playerIds": [10]
+}
+```
 
 ---
 
@@ -436,6 +450,15 @@ Starts a competition (changes status to ACTIVE).
 
 *   **200 OK**
 
+```json
+{
+  "id": 5,
+  "title": "Squid Game 2025",
+  "status": "ACTIVE",
+  "lobbyId": 1
+}
+```
+
 ### 5.3 Get My Competitions
 Retrieves competitions for the current lobby.
 
@@ -469,6 +492,17 @@ Retrieves all competitions system-wide.
 **Response**
 
 *   **200 OK**
+
+```json
+[
+  {
+    "id": 5,
+    "title": "Squid Game 2025",
+    "status": "ACTIVE",
+    "lobbyId": 1
+  }
+]
+```
 
 ### 5.5 Get Competition Users
 Retrieves users in a competition, optionally filtered by status and sex.
@@ -520,6 +554,15 @@ Adds a new game definition to the system.
 
 *   **203 Created**
 
+```json
+{
+  "id": 1,
+  "gameTitle": "Tug of War",
+  "description": "Team based strength game...",
+  "gameDuration": 30
+}
+```
+
 ### 6.2 Get Games
 Retrieves all available games.
 
@@ -557,6 +600,24 @@ Adds a list of games as rounds to a competition.
 
 *   **203 Created**
 
+```json
+{
+  "competitionId": 5,
+  "roundSummaryDTOs": [
+    {
+      "id": 10,
+      "gameId": 1,
+      "roundNumber": 1
+    },
+    {
+      "id": 11,
+      "gameId": 2,
+      "roundNumber": 2
+    }
+  ]
+}
+```
+
 ### 7.2 Get Current Round
 Retrieves details of the current round.
 
@@ -568,6 +629,18 @@ Retrieves details of the current round.
 **Response**
 
 *   **200 OK**
+
+```json
+{
+  "id": 12,
+  "competitionId": 5,
+  "gameId": 1,
+  "roundNumber": 1,
+  "status": "IN_PROGRESS",
+  "startedAt": 1762541511151,
+  "endedAt": null
+}
+```
 
 ### 7.3 Get Next Round
 Retrieves details of the next scheduled round.
@@ -581,6 +654,18 @@ Retrieves details of the next scheduled round.
 
 *   **200 OK**
 
+```json
+{
+  "id": 13,
+  "competitionId": 5,
+  "gameId": 2,
+  "roundNumber": 2,
+  "status": "PENDING",
+  "startedAt": null,
+  "endedAt": null
+}
+```
+
 ### 7.4 Start Next Round
 Starts the next round in the sequence.
 
@@ -593,6 +678,18 @@ Starts the next round in the sequence.
 
 *   **200 OK**
 
+```json
+{
+  "id": 13,
+  "competitionId": 5,
+  "gameId": 2,
+  "roundNumber": 2,
+  "status": "IN_PROGRESS",
+  "startedAt": 1762541511151,
+  "endedAt": null
+}
+```
+
 ### 7.5 End Current Round
 Ends the currently active round.
 
@@ -604,6 +701,18 @@ Ends the currently active round.
 **Response**
 
 *   **200 OK**
+
+```json
+{
+  "id": 12,
+  "competitionId": 5,
+  "gameId": 1,
+  "roundNumber": 1,
+  "status": "COMPLETED",
+  "startedAt": 1762541511151,
+  "endedAt": 1762541529989
+}
+```
 
 ---
 
@@ -623,6 +732,15 @@ Reports the outcome for a player in a round.
 
 *   **203 Created**
 
+```json
+{
+  "roundId": 12,
+  "userId": 10,
+  "status": "PASSED",
+  "time": 1762681090338
+}
+```
+
 ### 8.2 Get Reported Players
 Retrieves all reported results for a round.
 
@@ -634,6 +752,20 @@ Retrieves all reported results for a round.
 **Response**
 
 *   **200 OK**
+
+```json
+{
+  "roundId": 12,
+  "players": [
+    {
+      "id": 10,
+      "email": "player@example.com",
+      "role": "PLAYER",
+      "status": "PASSED"
+    }
+  ]
+}
+```
 
 ### 8.3 Confirm Reports
 Confirms the reported results for a round.
@@ -657,6 +789,20 @@ Confirms the reported results for a round.
 
 *   **200 OK**
 
+```json
+{
+  "roundId": 12,
+  "players": [
+    {
+      "id": 10,
+      "email": "player@example.com",
+      "role": "PLAYER",
+      "status": "PASSED"
+    }
+  ]
+}
+```
+
 ---
 
 ## 9. Voting
@@ -673,6 +819,18 @@ Casts a vote to continue or quit the games.
 
 *   **200 OK**
 
+```json
+{
+  "user": {
+    "id": 10,
+    "email": "player@example.com",
+    "role": "PLAYER",
+    "status": "ALIVE"
+  },
+  "quit": false
+}
+```
+
 ### 9.2 Get Vote Records
 Retrieves all votes for a round.
 
@@ -684,6 +842,20 @@ Retrieves all votes for a round.
 **Response**
 
 *   **200 OK**
+
+```json
+[
+  {
+    "user": {
+      "id": 10,
+      "email": "player@example.com",
+      "role": "PLAYER",
+      "status": "ALIVE"
+    },
+    "quit": false
+  }
+]
+```
 
 ### 9.3 Get Vote Results
 Retrieves the aggregated results of the vote.
@@ -729,6 +901,27 @@ Deposits money into a competition's prize pool.
 **Response**
 
 *   **200 OK**
+
+```json
+{
+  "id": 100,
+  "competition": {
+    "id": 5,
+    "title": "Squid Game 2025",
+    "status": "ACTIVE"
+  },
+  "sender": {
+    "id": 50,
+    "email": "vip@example.com",
+    "role": null,
+    "status": null
+  },
+  "recipient": null,
+  "amount": 1000000,
+  "transactionType": "DEPOSIT",
+  "createdAt": 1762976389203
+}
+```
 
 ### 10.2 Get Referral Code
 Retrieves the referral code for the authenticated salesman.
