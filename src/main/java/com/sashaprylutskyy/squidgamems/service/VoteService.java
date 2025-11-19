@@ -78,7 +78,6 @@ public class VoteService {
         int quitGame = getVotes(roundId, false).size();
         int remaining = reportedPlayers.getPlayers().size() - getVotes(roundId).size();
 
-        competitionService.endCompetition(roundId, continueGame, quitGame, remaining);
         return new VoteResultDTO(continueGame, quitGame, remaining);
     }
 }

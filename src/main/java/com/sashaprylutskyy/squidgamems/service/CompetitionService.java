@@ -114,16 +114,6 @@ public class CompetitionService {
     }
 
     @Transactional
-    public void endCompetition(Long roundId, int continueGame, int quitGame, int remaining) {
-        if (remaining == 0 && (quitGame > continueGame)) {
-            Competition competition = getRoundById(roundId).getCompetition();
-            competition.setStatus(CompetitionRoundStatus.COMPLETED);
-            competitionRepo.save(competition);
-            //todo прописати виплату грошової винагороди вижившим гравцям
-        }
-    }
-
-    @Transactional
     public void updateCompetitionStatus(Long competitionId, CompetitionRoundStatus newStatus) {
         Competition competition = getById(competitionId);
         // Можна додати логіку перевірки,
