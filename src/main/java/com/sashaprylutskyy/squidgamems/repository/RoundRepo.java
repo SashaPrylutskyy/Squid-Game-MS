@@ -16,6 +16,7 @@ public interface RoundRepo extends JpaRepository<Round, Long> {
             SELECT r FROM Round r
             WHERE r.competition.id = :competitionId
                 AND r.startedAt IS NULL
+                AND r.status = 'PENDING'
             ORDER BY r.id ASC
             """)
     List<Round> findNextRounds(@Param("competitionId") Long competitionId);

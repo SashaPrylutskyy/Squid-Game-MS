@@ -1,5 +1,6 @@
 package com.sashaprylutskyy.squidgamems.repository;
 
+import com.sashaprylutskyy.squidgamems.model.Round;
 import com.sashaprylutskyy.squidgamems.model.User;
 import com.sashaprylutskyy.squidgamems.model.dto.user.PlayerReportDTO;
 import com.sashaprylutskyy.squidgamems.model.enums.Role;
@@ -19,11 +20,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findUserById(Long id);
 
-    // --- ✨ НОВІ МЕТОДИ ---
 
-    /**
-     * Цей запит витягує гравців та їхній статус у поточному раунді.
-     */
     @Query("""
             SELECT new com.sashaprylutskyy.squidgamems.model.dto.user.PlayerReportDTO(
                 u.id,
@@ -45,7 +42,23 @@ public interface UserRepository extends JpaRepository<User, Long> {
             @Param("roundId") Long roundId
     );
 
-    // Для попереднього функціоналу (фільтрація вільних гравців)
+    @Query("""
+            SELECT u FROM User u
+            JOIN Assignment a ON a.user = u
+            WHERE a.env = 'COMPETITION'
+              AND a.envId = :competitionId
+              AND u.status = 'ALIVE'
+              AND u.id NOT IN (
+                  SELECT rr.user.id
+                  FROM RoundResult rr
+                  WHERE rr.round = :round
+              )
+            """)
+    List<User> findPlayersWithoutResultInRound(
+            @Param("competitionId") Long competitionId,
+            @Param("round") Round round
+    );
+
     @Query("""
             SELECT u FROM User u
             JOIN Assignment lobbyA ON lobbyA.user = u

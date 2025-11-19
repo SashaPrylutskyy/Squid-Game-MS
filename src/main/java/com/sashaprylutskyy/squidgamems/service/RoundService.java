@@ -108,25 +108,21 @@ public class RoundService {
                 throw new RuntimeException("Cannot start next round: "
                         + voteResults.getRemaining() + " players have not voted for the previous round yet.");
             }
+
+            currentRound.setStatus(CompetitionRoundStatus.COMPLETED);
         }
 
-        Round previousRound = getCurrentRound(competitionId);
-        previousRound.setStatus(CompetitionRoundStatus.COMPLETED);
+        Round nextRound = getNextRound(competitionId);
+        nextRound.setStatus(CompetitionRoundStatus.ACTIVE);
+        nextRound.setStartedAt(System.currentTimeMillis());
 
-        Round round = getNextRound(competitionId);
-        round.setStatus(CompetitionRoundStatus.ACTIVE);
-        round.setStartedAt(System.currentTimeMillis());
-
-        competition.setCurrentRoundId(round.getId());
-
-        roundRepo.save(previousRound);
-        roundRepo.save(round);
+        competition.setCurrentRoundId(nextRound.getId());
 
 //        timerService.runAfterDelay(() -> endRound(round, competition),
 //                60 * 1000 * round.getGame().getGameDuration());
-        timerService.runAfterDelay(() -> endRound(round, competition), //This is just for testing purposes.
+        timerService.runAfterDelay(() -> endRound(nextRound, competition), //This is just for testing purposes.
                 60 * 1000);
-        return roundMapper.toResponseDTO(round);
+        return roundMapper.toResponseDTO(nextRound);
     }
 
     @Transactional
@@ -136,12 +132,6 @@ public class RoundService {
 
         roundResultService.setPlayersStatusTimeout(currentCompetition.getId(), round);
 
-        try {
-            getNextRound(round.getCompetition().getId());
-        } catch (NoResultException e) {
-            currentCompetition.setStatus(CompetitionRoundStatus.COMPLETED);
-            competitionRepo.save(currentCompetition);
-        }
         return roundRepo.save(round);
     }
 

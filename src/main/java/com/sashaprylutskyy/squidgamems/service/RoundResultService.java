@@ -130,23 +130,20 @@ public class RoundResultService {
     public void setPlayersStatusTimeout(Long competitionId, Round round) {
         Long now = System.currentTimeMillis();
 
-        List<RoundResult> rrs = getReports(round.getId());
-        List<Long> existingUserIds = rrs.stream()
-                .map(rr -> rr.getUser().getId())
-                .toList();
+        List<User> timedOutPlayers = userRepository
+                .findPlayersWithoutResultInRound(competitionId, round);
 
-        List<Assignment> assignments = assignmentService.getAssignmentsListExcludingUsersByIds(
-                Env.COMPETITION, competitionId, existingUserIds, UserStatus.ALIVE);
-        List<User> playersToEliminate = assignments.stream()
-                .map(Assignment::getUser)
-                .toList();
+        if (timedOutPlayers.isEmpty()) {
+            return;
+        }
 
-        List<RoundResult> rrsToSave = new ArrayList<>(playersToEliminate.size());
-        for (User player : playersToEliminate) {
+        List<RoundResult> rrsToSave = new ArrayList<>(timedOutPlayers.size());
+        for (User player : timedOutPlayers) {
             RoundResult rr = new RoundResult(round, player, UserStatus.TIMEOUT, now, null);
             rrsToSave.add(rr);
             rr.getUser().setStatus(UserStatus.ELIMINATED);
         }
         roundResultRepo.saveAll(rrsToSave);
+        userRepository.saveAll(timedOutPlayers);
     }
 }
