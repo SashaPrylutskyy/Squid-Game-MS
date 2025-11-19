@@ -43,11 +43,11 @@ public class UserService {
     private final com.sashaprylutskyy.squidgamems.repository.RoundResultRepo roundResultRepo;
 
     public UserService(UserRepository userRepo, JwtService jwtService,
-                       PasswordEncoder encoder, UserMapper userMapper,
-                       RefCodeService refCodeService, RefCodeMapper refCodeMapper,
-                       AssignmentService assignmentService, CompetitionService competitionService,
-                       RoundRepo roundRepo, VoteRepo voteRepo,
-                       com.sashaprylutskyy.squidgamems.repository.RoundResultRepo roundResultRepo) {
+            PasswordEncoder encoder, UserMapper userMapper,
+            RefCodeService refCodeService, RefCodeMapper refCodeMapper,
+            AssignmentService assignmentService, CompetitionService competitionService,
+            RoundRepo roundRepo, VoteRepo voteRepo,
+            com.sashaprylutskyy.squidgamems.repository.RoundResultRepo roundResultRepo) {
         this.userRepo = userRepo;
         this.jwtService = jwtService;
         this.encoder = encoder;
@@ -94,6 +94,31 @@ public class UserService {
     public List<UserSummaryDTO> getListOfUsers(Env env, Long envId, UserStatus userStatus, Sex sex) {
         List<Assignment> assignments = assignmentService.getListOfAssignments(env, envId, userStatus, sex);
         return userMapper.toSummaryDTOList(assignments);
+    }
+
+    public List<UserSummaryDTO> getListOfUsersInRound(Long roundId) {
+        List<RoundResult> results = roundResultRepo.findAllByRoundId(roundId);
+        return mapRoundResultsToUserSummaryDTOs(results);
+    }
+
+    public List<UserSummaryDTO> getListOfUsersInRound(Long roundId, UserStatus status) {
+        List<RoundResult> results = roundResultRepo.findAllByRoundIdAndStatus(roundId, status);
+        return mapRoundResultsToUserSummaryDTOs(results);
+    }
+
+    public List<UserSummaryDTO> getListOfUsersInRound(Long roundId, UserStatus status, Sex sex) {
+        List<RoundResult> results = roundResultRepo.findAllByRoundIdAndStatusAndUserSex(roundId, status, sex);
+        return mapRoundResultsToUserSummaryDTOs(results);
+    }
+
+    private List<UserSummaryDTO> mapRoundResultsToUserSummaryDTOs(List<RoundResult> results) {
+        return results.stream()
+                .map(result -> {
+                    UserSummaryDTO dto = userMapper.toSummaryDTO(result.getUser());
+                    dto.setStatus(result.getStatus());
+                    return dto;
+                })
+                .toList();
     }
 
     @Transactional

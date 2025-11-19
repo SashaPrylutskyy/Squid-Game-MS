@@ -92,13 +92,14 @@ Registers a new user with a specific role (HOST or VIP).
 {
   "email": "user@example.com",
   "password": "securePassword123",
-  "role": "HOST", 
+  "role": "HOST",
   "birthday": "1990-01-01",
   "firstName": "John",
   "lastName": "Doe",
   "profilePhoto": "/path/to/photo.jpg",
   "sex": "MALE",
-  "balance": 1000000000 // Optional, for VIPs
+  "balance": 1000000000
+  // Optional, for VIPs
 }
 ```
 
@@ -712,6 +713,31 @@ Ends the currently active round.
   "startedAt": 1762541511151,
   "endedAt": 1762541529989
 }
+```
+
+### 7.6 Get Round Users
+Retrieves users in a round, optionally filtered by status and sex.
+
+*   **URL**:
+    *   `/round/{roundId}`
+    *   `/round/{roundId}/{userStatus}`
+    *   `/round/{roundId}/{userStatus}/{sex}`
+*   **Method**: `GET`
+*   **Auth Required**: Yes
+*   **Roles**: `FRONTMAN`, `HOST`
+
+**Response**
+
+*   **200 OK**
+
+```json
+[
+  {
+    "id": 10,
+    "email": "player@example.com",
+    "status": "PASSED"
+  }
+]
 ```
 
 ---

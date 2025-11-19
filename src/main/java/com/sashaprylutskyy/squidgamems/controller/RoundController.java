@@ -6,6 +6,10 @@ import com.sashaprylutskyy.squidgamems.model.dto.round.RoundListResponseDTO;
 import com.sashaprylutskyy.squidgamems.model.dto.round.RoundResponseDTO;
 import com.sashaprylutskyy.squidgamems.model.mapper.RoundMapper;
 import com.sashaprylutskyy.squidgamems.service.RoundService;
+import com.sashaprylutskyy.squidgamems.model.dto.user.UserSummaryDTO;
+import com.sashaprylutskyy.squidgamems.model.enums.Sex;
+import com.sashaprylutskyy.squidgamems.model.enums.UserStatus;
+import com.sashaprylutskyy.squidgamems.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -20,10 +24,12 @@ public class RoundController {
 
     private final RoundService roundService;
     private final RoundMapper roundMapper;
+    private final UserService userService;
 
-    public RoundController(RoundService roundService, RoundMapper roundMapper) {
+    public RoundController(RoundService roundService, RoundMapper roundMapper, UserService userService) {
         this.roundService = roundService;
         this.roundMapper = roundMapper;
+        this.userService = userService;
     }
 
     @PostMapping
@@ -68,8 +74,30 @@ public class RoundController {
         RoundResponseDTO response = roundService.endRound(competitionId);
         return ResponseEntity.ok(response);
     }
-//
-//    @PutMapping("/{roundId}/pause")
-//    @Secured("ROLE_FRONTMAN")
 
+    @GetMapping("/{roundId}")
+    @Secured({"ROLE_HOST", "ROLE_FRONTMAN"})
+    public ResponseEntity<List<UserSummaryDTO>> getUsers(@PathVariable Long roundId) {
+        List<UserSummaryDTO> players = userService.getListOfUsersInRound(roundId);
+        return new ResponseEntity<>(players, HttpStatus.OK);
+    }
+
+    @GetMapping("/{roundId}/{userStatus}")
+    @Secured({"ROLE_HOST", "ROLE_FRONTMAN"})
+    public ResponseEntity<List<UserSummaryDTO>> getUsers(
+            @PathVariable Long roundId,
+            @PathVariable UserStatus userStatus) {
+        List<UserSummaryDTO> players = userService.getListOfUsersInRound(roundId, userStatus);
+        return new ResponseEntity<>(players, HttpStatus.OK);
+    }
+
+    @GetMapping("/{roundId}/{userStatus}/{sex}")
+    @Secured({"ROLE_HOST", "ROLE_FRONTMAN"})
+    public ResponseEntity<List<UserSummaryDTO>> getUsers(
+            @PathVariable Long roundId,
+            @PathVariable UserStatus userStatus,
+            @PathVariable Sex sex) {
+        List<UserSummaryDTO> players = userService.getListOfUsersInRound(roundId, userStatus, sex);
+        return new ResponseEntity<>(players, HttpStatus.OK);
+    }
 }

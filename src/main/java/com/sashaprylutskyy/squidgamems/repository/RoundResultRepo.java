@@ -30,4 +30,16 @@ public interface RoundResultRepo extends JpaRepository<RoundResult, Long> {
         List<RoundResult> findAllByRoundIdAndStatus(Long roundId, UserStatus status);
 
         java.util.Optional<RoundResult> findTopByUserOrderByIdDesc(User user);
+
+        @Query("""
+                        SELECT rr FROM RoundResult rr
+                        JOIN rr.user u
+                        WHERE rr.round.id = :roundId
+                        AND rr.status = :status
+                        AND u.sex = :sex
+                        """)
+        List<RoundResult> findAllByRoundIdAndStatusAndUserSex(
+                        @Param("roundId") Long roundId,
+                        @Param("status") UserStatus status,
+                        @Param("sex") com.sashaprylutskyy.squidgamems.model.enums.Sex sex);
 }
