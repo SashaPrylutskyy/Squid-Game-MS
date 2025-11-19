@@ -126,27 +126,31 @@ public class RoundService {
     }
 
     @Transactional
-    protected Round endRound(Round round, Competition currentCompetition) {
-        round.setEndedAt(System.currentTimeMillis());
-        round.setStatus(CompetitionRoundStatus.VOTING);
-
-        roundResultService.setPlayersStatusTimeout(currentCompetition.getId(), round);
-
-        return roundRepo.save(round);
-    }
-
-    //todo cancel a runAfterDelay() method using a cancel() method
-    @Transactional
-    public RoundResponseDTO endRound(Long competitionId) {
-        Competition currentCompetition = competitionService.getById(competitionId);
-        if (currentCompetition.getStatus() != CompetitionRoundStatus.ACTIVE) {
-            throw new RuntimeException("Oops! Competition is ended.");
+    protected Round endRound(Round round, Competition competition) {
+        if (competition.getStatus() != CompetitionRoundStatus.ACTIVE) {
+            throw new RuntimeException("Oops! Competition is ended already.");
         }
-
-        Round round = getCurrentRound(competitionId);
         if (round.getStatus() != CompetitionRoundStatus.ACTIVE) {
             throw new RuntimeException("Oops! Round is ended already.");
         }
+        round.setEndedAt(System.currentTimeMillis());
+        round.setStatus(CompetitionRoundStatus.VOTING);
+
+        roundResultService.setPlayersStatusTimeout(competition.getId(), round);
+
+        if (getNextRound(competition.getId()) == null) {
+            round.setStatus(CompetitionRoundStatus.COMPLETED);
+            competition.setStatus(CompetitionRoundStatus.COMPLETED);
+        }
+
+        competitionRepo.save(competition);
+        return roundRepo.save(round);
+    }
+
+    @Transactional
+    public RoundResponseDTO endRound(Long competitionId) {
+        Competition currentCompetition = competitionService.getById(competitionId);
+        Round round = getCurrentRound(competitionId);
         round = endRound(round, currentCompetition);
 
         return roundMapper.toResponseDTO(round);
