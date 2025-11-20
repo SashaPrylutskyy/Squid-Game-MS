@@ -14,16 +14,12 @@ import com.sashaprylutskyy.squidgamems.repository.RoundRepo;
 import com.sashaprylutskyy.squidgamems.util.TimerService;
 import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class RoundService {
-
-    @Value("${game.voting-duration}")
-    private Long votingDuration;
 
     private final RoundMapper roundMapper;
     private final RoundRepo roundRepo;
@@ -118,10 +114,10 @@ public class RoundService {
 
         competition.setCurrentRoundId(nextRound.getId());
 
-//        timerService.runAfterDelay(() -> endRound(round, competition),
-//                60 * 1000 * round.getGame().getGameDuration());
-        timerService.runAfterDelay(() -> endRound(nextRound, competition), //This is just for testing purposes.
-                60 * 1000);
+        timerService.runAfterDelay(() -> endRound(nextRound, competition),
+                60 * 1000 * nextRound.getGame().getGameDuration());
+//        timerService.runAfterDelay(() -> endRound(nextRound, competition), //This is just for testing purposes.
+//                60 * 1000);
         return roundMapper.toResponseDTO(nextRound);
     }
 
