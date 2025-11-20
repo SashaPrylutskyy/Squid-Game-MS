@@ -16,6 +16,8 @@ INSERT INTO SquidGameMS.users (id, balance, birthday, created_at, email, first_n
 INSERT INTO SquidGameMS.users (id, balance, birthday, created_at, email, first_name, last_name, password, profile_photo, role, sex, status, updated_at) VALUES (38, null, '1966-06-06 03:00:00.000000', 1763627572020, 'zek.sharden@player.track', 'Зек', 'Шарден', '$2a$12$IksqEGyVf1eLy1BNJWNeZONhIqEokI5/joxM5R0u7EhiYIGlfEfsK', 'none', 'PLAYER', 'MALE', 'ALIVE', 1763627572020);
 INSERT INTO SquidGameMS.users (id, balance, birthday, created_at, email, first_name, last_name, password, profile_photo, role, sex, status, updated_at) VALUES (39, null, '2003-03-10 02:00:00.000000', 1763627719112, 'tikki.blyden@worker.floor', 'Тіккі', 'Блайден', '$2a$12$b13ipquT84stX0UFRg7Yn.pQt..dVU/CBnIn8DBDN/.sylxDdPV.O', 'none', 'WORKER', 'MALE', 'ALIVE', 1763627719112);
 
+INSERT INTO SquidGameMS.ref_codes (ref_code, user_id) VALUES ('8J4wEW41', 32);
+INSERT INTO SquidGameMS.ref_codes (ref_code, user_id) VALUES ('KmXCbEAT', 33);
 
 INSERT INTO SquidGameMS.recruitment_logs (id, created_at, user_id, ref_code) VALUES (11, 1763626948357, 34, '8J4wEW41');
 INSERT INTO SquidGameMS.recruitment_logs (id, created_at, user_id, ref_code) VALUES (12, 1763627443317, 35, '8J4wEW41');
@@ -55,10 +57,6 @@ INSERT INTO SquidGameMS.games (id, created_at, description, game_duration, game_
 INSERT INTO SquidGameMS.games (id, created_at, description, game_duration, game_title, updated_at, created_by) VALUES (5, 1762466968525, 'Гравці по черзі крокують по рядах скляних панелей, де лише одна з двох витримує вагу. Помилковий вибір призводить до падіння.', 47, 'Скляний міст', 1762466968525, 28);
 INSERT INTO SquidGameMS.games (id, created_at, description, game_duration, game_title, updated_at, created_by) VALUES (6, 1762466971942, 'Гравці отримують по 10 кульок і повинні виграти всі кульки супротивника будь-яким способом за домовленими правилами (парне/непарне, відстань тощо).', 29, 'Кульки', 1762466971942, 28);
 INSERT INTO SquidGameMS.games (id, created_at, description, game_duration, game_title, updated_at, created_by) VALUES (7, 1762466986772, 'Гравці по черзі стрибають по малюнку на землі за певним маршрутом, не наступаючи за межі ліній. Програє той, хто втрачає рівновагу або порушує правила.', 12, 'Сквирт-гопак', 1762466986772, 28);
-
-
-INSERT INTO SquidGameMS.ref_codes (ref_code, user_id) VALUES ('8J4wEW41', 32);
-INSERT INTO SquidGameMS.ref_codes (ref_code, user_id) VALUES ('KmXCbEAT', 33);
 
 
 INSERT INTO SquidGameMS.competitions (id, created_at, current_round_id, lobby_id, status, title, updated_at, created_by) VALUES (11, 1763627933755, null, 28, 'PENDING', 'Protocol of Final Selection', 1763627933755, 28);

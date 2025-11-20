@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  # --- MySQL Database Service ---
+  mysqldb:
+    image: mysql:9
+    # Змінили назву контейнера, щоб уникнути конфлікту
+    container_name: squid-game-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: SquidGameMS
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_general_ci
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --- Spring Boot Backend Service ---
+  backend:
+    build: .
+    container_name: squidgame-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysqldb:
+        condition: service_healthy
+    environment:
+      # Тут залишається 'mysqldb', бо це назва сервісу в мережі Docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/SquidGameMS
+
+      SPRING_PROFILES_ACTIVE: dev
+
+      # Відкладена ініціалізація даних (чекаємо створення таблиць Hibernate)
+      SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION: "true"
+
+      # Примусовий запуск скриптів
+      SPRING_SQL_INIT_MODE: always
+
+networks:
+  default:
+    name: squid-network
