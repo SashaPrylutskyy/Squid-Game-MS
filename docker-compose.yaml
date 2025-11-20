@@ -1,10 +1,9 @@
 version: '3.8'
 
 services:
-  # --- MySQL Database Service ---
+  # --- MySQL ---
   mysqldb:
     image: mysql:9
-    # Змінили назву контейнера, щоб уникнути конфлікту
     container_name: squid-game-db
     restart: unless-stopped
     environment:
@@ -21,7 +20,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # --- Spring Boot Backend Service ---
+  # --- Backend ---
   backend:
     build: .
     container_name: squidgame-backend
@@ -31,16 +30,29 @@ services:
       mysqldb:
         condition: service_healthy
     environment:
-      # Тут залишається 'mysqldb', бо це назва сервісу в мережі Docker
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/SquidGameMS
-
       SPRING_PROFILES_ACTIVE: dev
-
-      # Відкладена ініціалізація даних (чекаємо створення таблиць Hibernate)
       SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION: "true"
-
-      # Примусовий запуск скриптів
       SPRING_SQL_INIT_MODE: always
+
+  # --- Frontend ---
+  frontend:
+    build:
+      # ВАРІАНТ 1: Відносний шлях (якщо папки поруч)
+      context: ../squid-game-vite-ui
+
+      # ВАРІАНТ 2: Повний шлях (найнадійніший, якщо папки далеко)
+      # Заміни на свій реальний шлях до папки з React!
+      # context: /Users/sasha/Documents/Work/squid-game-frontend
+
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: "http://localhost:8080/api"
+    container_name: squidgame-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
 
 networks:
   default:
