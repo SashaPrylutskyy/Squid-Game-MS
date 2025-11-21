@@ -43,7 +43,7 @@ public class VoteController {
     }
 
     @GetMapping("/{roundId}/results")
-    @Secured("ROLE_FRONTMAN")
+    @Secured({"ROLE_FRONTMAN", "ROLE_HOST"})
     public ResponseEntity<VoteResultDTO> getResults(@PathVariable Long roundId) {
         VoteResultDTO results = voteService.getResults(roundId);
         return ResponseEntity.ok(results);

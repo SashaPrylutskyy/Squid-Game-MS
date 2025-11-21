@@ -54,7 +54,7 @@ public class RoundController {
     }
 
     @GetMapping("/{competitionId}/next_round")
-    @Secured("ROLE_FRONTMAN")
+    @Secured({"ROLE_FRONTMAN", "ROLE_HOST"})
     public ResponseEntity<RoundResponseDTO> getNextRound(@PathVariable Long competitionId) {
         Round nextRound = roundService.getNextRound(competitionId);
         RoundResponseDTO response = roundMapper.toResponseDTO(nextRound);
@@ -62,14 +62,14 @@ public class RoundController {
     }
 
     @PatchMapping("/{competitionId}/next_round/start")
-    @Secured("ROLE_FRONTMAN")
+    @Secured({"ROLE_FRONTMAN", "ROLE_HOST"})
     public ResponseEntity<RoundResponseDTO> startNextRound(@PathVariable Long competitionId) {
         RoundResponseDTO response = roundService.startNextRound(competitionId);
         return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{competitionId}/current_round/end")
-    @Secured("ROLE_FRONTMAN")
+    @Secured({"ROLE_FRONTMAN", "ROLE_HOST"})
     public ResponseEntity<RoundResponseDTO> endCurrentRound(@PathVariable Long competitionId) {
         RoundResponseDTO response = roundService.endRound(competitionId);
         return ResponseEntity.ok(response);

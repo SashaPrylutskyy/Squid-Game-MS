@@ -35,14 +35,14 @@ public class UserController {
     }
 
     @GetMapping("/worker/assignment")
-    @Secured({"ROLE_WORKER", "ROLE_FRONTMAN"})
+    @Secured({"ROLE_WORKER", "ROLE_FRONTMAN", "ROLE_HOST"})
     public ResponseEntity<WorkerAssignmentResponseDTO> getWorkerAssignment() {
         WorkerAssignmentResponseDTO response = userService.getWorkerAssignment();
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/player/status")
-    @Secured("ROLE_PLAYER")
+    @Secured({"ROLE_PLAYER", "ROLE_FRONTMAN", "ROLE_HOST"})
     public ResponseEntity<PlayerStatusResponseDTO> getPlayerStatus() {
         return ResponseEntity.ok(userService.getPlayerStatus());
     }

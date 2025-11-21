@@ -28,7 +28,7 @@ public class CompetitionController {
     }
 
     @GetMapping("/list-all")
-    @Secured({"ROLE_VIP"})
+    @Secured({"ROLE_HOST", "ROLE_FRONTMAN"})
     public ResponseEntity<List<CompetitionResponseDTO>> getAllCompetitions() {
         List<CompetitionResponseDTO> response = competitionService.getAllCompetitionsSelective();
         return ResponseEntity.ok(response);

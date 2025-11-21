@@ -22,7 +22,7 @@ public class RoundResultController {
     }
 
     @GetMapping("/{roundId}/reported")
-    @Secured("ROLE_FRONTMAN")
+    @Secured({"ROLE_HOST", "ROLE_FRONTMAN"})
     public ResponseEntity<RoundResultSummaryDTO> getReportedPlayers(@PathVariable Long roundId) {
         RoundResultSummaryDTO response = roundResultService.getReportsSummary(roundId);
         return ResponseEntity.ok(response);
@@ -40,7 +40,7 @@ public class RoundResultController {
     }
 
     @PatchMapping("/confirmation")
-    @Secured({"ROLE_FRONTMAN"})
+    @Secured({"ROLE_HOST", "ROLE_FRONTMAN"})
     public ResponseEntity<RoundResultSummaryDTO> confirmPlayerStatus(
             @Validated @RequestBody RoundResultRequestDTO dto) {
         RoundResultSummaryDTO response = roundResultService.confirmPlayerStatus(dto);
