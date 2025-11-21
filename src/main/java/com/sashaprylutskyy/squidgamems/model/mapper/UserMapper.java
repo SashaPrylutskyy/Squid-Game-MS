@@ -32,6 +32,9 @@ public interface UserMapper {
     @Mapping(target = "email", source = "user.email")
     @Mapping(target = "role", source = "user.role")
     @Mapping(target = "status", source = "user.status")
+    @Mapping(target = "sex", source = "user.sex")
+    @Mapping(target = "birthday", source = "user.birthday")
+    @Mapping(target = "createdAt", source = "user.createdAt")
     UserSummaryDTO toSummaryDTO(Assignment assignment);
 
     default List<UserSummaryDTO> toSummaryDTOList(List<Assignment> assignments) {

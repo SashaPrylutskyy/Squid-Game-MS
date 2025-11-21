@@ -14,7 +14,7 @@ import java.util.List;
 public interface RoundResultRepo extends JpaRepository<RoundResult, Long> {
 
         @Query("""
-                        SELECT rr FROM RoundResult  rr
+                        SELECT rr FROM RoundResult rr
                         WHERE rr.round.id = :roundId
                         AND rr.user.id IN :userIds
                         AND rr.confirmedAt IS NULL
@@ -42,4 +42,18 @@ public interface RoundResultRepo extends JpaRepository<RoundResult, Long> {
                         @Param("roundId") Long roundId,
                         @Param("status") UserStatus status,
                         @Param("sex") com.sashaprylutskyy.squidgamems.model.enums.Sex sex);
+
+        @Query("""
+                        SELECT new com.sashaprylutskyy.squidgamems.model.dto.reports.StaffStatsDTO(
+                            rr.reportedBy.id,
+                            rr.reportedBy.email,
+                            CAST(COUNT(rr) as int),
+                            AVG(CASE WHEN rr.confirmedAt IS NOT NULL THEN (rr.confirmedAt - rr.reportedAt) ELSE 0 END),
+                            0
+                        )
+                        FROM RoundResult rr
+                        WHERE rr.reportedBy IS NOT NULL
+                        GROUP BY rr.reportedBy.id, rr.reportedBy.email
+                        """)
+        List<com.sashaprylutskyy.squidgamems.model.dto.reports.StaffStatsDTO> getStaffStats();
 }

@@ -1,7 +1,10 @@
 package com.sashaprylutskyy.squidgamems.model.dto.user;
 
 import com.sashaprylutskyy.squidgamems.model.enums.Role;
+import com.sashaprylutskyy.squidgamems.model.enums.Sex;
 import com.sashaprylutskyy.squidgamems.model.enums.UserStatus;
+
+import java.util.Date;
 
 public class UserSummaryDTO {
 
@@ -9,6 +12,9 @@ public class UserSummaryDTO {
     private String email;
     private Role role;
     private UserStatus status;
+    private Sex sex;
+    private Date birthday;
+    private Long createdAt;
 
     public UserSummaryDTO() {
 
@@ -44,5 +50,29 @@ public class UserSummaryDTO {
 
     public void setStatus(UserStatus status) {
         this.status = status;
+    }
+
+    public Sex getSex() {
+        return sex;
+    }
+
+    public void setSex(Sex sex) {
+        this.sex = sex;
+    }
+
+    public Date getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(Date birthday) {
+        this.birthday = birthday;
+    }
+
+    public Long getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Long createdAt) {
+        this.createdAt = createdAt;
     }
 }
