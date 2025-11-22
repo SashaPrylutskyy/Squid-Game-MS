@@ -15,13 +15,12 @@ import java.util.Optional;
 @Repository
 public interface RoundRepo extends JpaRepository<Round, Long> {
 
-    // --- ВИПРАВЛЕННЯ 1: Використовуємо правильний Enum та сортування ---
     @Query("""
             SELECT r FROM Round r
             WHERE r.competition.id = :competitionId
                 AND r.startedAt IS NULL
                 AND r.status = :status
-            ORDER BY r.roundNumber ASC
+            ORDER BY r.id ASC
             """)
     List<Round> findNextRounds(@Param("competitionId") Long competitionId,
                                @Param("status") CompetitionRoundStatus status);
